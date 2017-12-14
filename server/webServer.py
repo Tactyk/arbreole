@@ -5,6 +5,7 @@ import tornado.websocket
 import tornado.gen
 import os
 import time
+from services import clientSender
 
 from tornado.options import define, options
 
@@ -22,13 +23,15 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         print('New connection')
         clients.append(self)
-        self.write_message("Server connection opened")
+        self.write_message("server: Connection opened")
+        if 'Hostname' in self.request.headers:
+            client_hostname = self.request.headers['Hostname']
+            clientSender.send_all('new_client_hostname' + client_hostname, clients)
 
     def on_message(self, message):
-        print('Server receiving from client: %s' % message)
-        time.sleep(1)
+        print('Receiving from client: %s' % message)
         for client in clients:
-            client.write_message('Server sending message: %s' % message)
+            client.write_message(message)
 
     def on_close(self):
         print('Server connection closed')

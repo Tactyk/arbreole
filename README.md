@@ -89,6 +89,13 @@ NB: Open the developper console tool to see logs for debugging.
     
 Everything is now connected by websocket. Try to add a text in your interface, enter and see every logs in terminal / console.
 
+#### Client Config
+You can find client config file into the raspberryPi/config/ folder, named config.ini. It is handled by the module configparser that can retrieve all nested config separated by sections.
+See [configparser doc](https://docs.python.org/3/library/configparser.html) to use it.
+  
 
+####Scripts
 
+You can find some useful scripts into server/script/ folder. To run it, **from this folder**, please type ``./server/scripts/{script-name}.sh`` 
 
+- update_config.sh : change your local config.ini 
