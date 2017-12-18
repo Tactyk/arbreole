@@ -2,6 +2,6 @@
 
 for hostname in `cat ./raspberry_hostnames`; do
   echo $hostname
-  scp -p -r ../../raspberryPi/config/config.ini $hostname:~/Arbreole/src/config/
+  scp -p -r ../client/config/config.ini $hostname:~/arbreole/src/config/
 done
 

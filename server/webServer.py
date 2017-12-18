@@ -9,7 +9,7 @@ from services import clientSender
 
 from tornado.options import define, options
 
-static_path = os.path.join(os.path.dirname(__file__), '../static')
+static_path = os.path.join(os.path.dirname(__file__), '../interface/static')
 
 define("port", default=8080, help="run on the given port", type=int)
 
@@ -17,7 +17,7 @@ clients = []
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render('../views/index.html')
+        self.render('../interface/views/index.html')
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
