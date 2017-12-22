@@ -14,8 +14,6 @@ Once installed, please check if it is on your computer with $git --version
     
 2) Ask project admins (Adrien or Yannick) for access to the project sources via ssh. You need to have an ssh key on your machine, if you don't, follow [this link](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/#platform-linux) to create one.
 
-3) Having a monitor with HDMI cable for raspberryPi section.
-
 ###Get the project!
 
 In your favorite terminal (for Mac we advice you to get iTerm2, for linux the default terminal with [ohmyzsh](https://github.com/robbyrussell/oh-my-zsh))
