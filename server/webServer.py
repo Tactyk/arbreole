@@ -5,11 +5,19 @@ import tornado.websocket
 import tornado.gen
 import os
 import time
+import configparser
+
 from services import clientSender
 
 from tornado.options import define, options
 
 static_path = os.path.join(os.path.dirname(__file__), '../interface/static')
+config_path = os.path.join(os.path.dirname(__file__), '../config')
+
+config = configparser.ConfigParser()
+config.read(config_path + '/config.ini')
+server_ip = config['server']['ServerIP']
+print(server_ip)
 
 define("port", default=8080, help="run on the given port", type=int)
 
@@ -17,16 +25,19 @@ clients = []
 
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render('../interface/views/index.html')
+        self.render('../interface/views/index.html', server_ip=server_ip)
 
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def open(self):
-        print('New connection')
-        clients.append(self)
-        self.write_message("server: Connection opened")
         if 'Hostname' in self.request.headers:
             client_hostname = self.request.headers['Hostname']
-            clientSender.send_all('new_client_hostname' + client_hostname, clients)
+            self.hostname = client_hostname
+        else:
+            client_hostname = 'interface'
+            self.hostname = client_hostname
+        print('New client connection with hostname: ' + client_hostname)
+        clients.append(self)
+        clientSender.send_all(client_hostname, clients)
 
     def on_message(self, message):
         print('Receiving from client: %s' % message)
@@ -34,8 +45,12 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             client.write_message(message)
 
     def on_close(self):
-        print('Server connection closed')
+        print('Client connection closed')
+        print(self.hostname)
         clients.remove(self)
+
+    def on_ping(self, data):
+        print('PING ===>' + self.hostname)
 
 settings = {
     'debug': True,

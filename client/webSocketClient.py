@@ -7,7 +7,7 @@ import subprocess
 import serial
 
 config = configparser.ConfigParser()
-config.read('config/config.ini')
+config.read('../config/config.ini')
 
 try:
     dev = subprocess.check_output('ls /dev/ttyACM0', shell=True)
@@ -29,11 +29,14 @@ def on_message(ws, message):
     elif message == '3':
         ser.write('3'.encode('utf-8'))
         time.sleep(1)
-    elif message == 'A':
-        ser.write('A'.encode('utf-8'))
+    elif message == '4':
+        ser.write('4'.encode('utf-8'))
         time.sleep(1)
-    elif message == 'B':
-        ser.write('B'.encode('utf-8'))
+    elif message == '5':
+        ser.write('5'.encode('utf-8'))
+        time.sleep(1)
+    else:
+        ser.write(message.encode('utf-8'))
         time.sleep(1)
 
 def on_error(ws, error):
@@ -57,6 +60,6 @@ if __name__ == "__main__":
                               on_message = on_message,
                               on_error = on_error,
                               on_close = on_close,
-                              header = { 'hostname' : hostname } )
+                              header = { 'hostname' : hostname })
     ws.on_open = on_open
-    ws.run_forever()
+    ws.run_forever(ping_interval = 10)
