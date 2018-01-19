@@ -161,3 +161,48 @@ See [configparser doc](https://docs.python.org/3/library/configparser.html) to u
 You can find some useful scripts into server/script/ folder. To run it, **from this folder**, please type ``./server/scripts/{script-name}.sh`` 
 
 - update_config.sh : change your local config.ini 
+
+### Contributing
+If you want to add your code to the project please follow this simple rule to do a Pull Request.
+
+If your are not familiar with git or gitflow, please read these little doc before:
+- https://git-scm.com/book/fr/v1/Git-distribu%C3%A9-Contribution-%C3%A0-un-projet
+- https://git-scm.com/book/fr/v1/Les-branches-avec-Git-Brancher-et-fusionner%C2%A0%3A-les-bases
+
+**Start a new work**
+ - Sync the current project with your local.
+ 
+ $`git checkout master` (go to your local master branch)
+ 
+ $`git pull` (retrieve master state on the remote branch)
+ 
+ - Create your own branch.
+ 
+ $`git checkout -b my_branch_name` (create a new branch based on master)
+ 
+ **Work locally**
+ 
+   - Change your files locally as you need
+    
+   - Tell git that your file as be added to your pull request
+        $`git status` to the what files changed during your work  
+        
+        $`git add ../path/to/the/file` for all files that you want to save
+  
+ **Save your work**
+     
+    $`git commit -m "Your commit message"`
+    
+ **Push your work to the remote repository**
+ 
+   $`git push origin my_branch_name`
+       
+**Create a pull request**
+
+In order to fuse your work with the current project please go on https://github.com/Tactyk/arbreole/pulls or click on the ![pull request tab](./_doc/img/pull_request_tab.png) of the github project.
+
+- Click on the pull request button ![pull request button](./_doc/img/new_pull_request_button.png) and choose master as a base branch and choose your branch to compare ![compare_pull_request](./_doc/img/pull_request_branch.png)
+- Click on the create pull request button ![create_pull request button](./_doc/img/create_pull_request.png) 
+- Ask for a review on slack ! 
+
+ 
