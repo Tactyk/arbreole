@@ -1,20 +1,21 @@
-###Before starting
+### Before starting
 In this documentation, we will use the terminal to perform some command lines. Here, every command will be prefixed by __$__. 
 
-###Prerequisites
+### Prerequisites
 1) Download git :
     Git is a tool to handle your code changes locally, add changes to the main remote project in collaboration with teammates.
 
 - for Mac: http://sourceforge.net/projects/git-osx-installer/
 - for Linux: $apt-get install git
     
-Once installed, please check if it is on your computer with $git --version 
+Once installed, please check if it is on your computer with `$git --version` (your version number has to be display, if not git seems to be not installed) 
     
  If your are not familiar with git, please Read [this documentation](https://git-scm.com/docs/gittutorial) to understand basics.  
     
-2) Ask project admins (Adrien or Yannick) for access to the project sources via ssh. You need to have an ssh key on your machine, if you don't, follow [this link](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/#platform-linux) to create one.
+2) You need to have an ssh key on your machine, if you don't, follow [this link](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/#platform-linux) to create one.
+3) Add your **public** ssh key to your github account (Top right avatar > Profile > Settings > SSH and GPG keys)
 
-###Get the project!
+### Get the project!
 
 In your favorite terminal (for Mac we advice you to get iTerm2, for linux the default terminal with [ohmyzsh](https://github.com/robbyrussell/oh-my-zsh))
 
@@ -24,15 +25,15 @@ $`cd ~` (tilde means home)
 
 $`mkdir arbreole && cd arbreole` (mkdir: make directory, cd: change directory)
 
-$`git clone git@bitbucket.org:supertactyk/architecture.git`
+$`git clone git@github.com:Tactyk/arbreole.git`
 
-###Project architecture
+### Project architecture
 
 You can see now the project structure in your 'arbreole' folder
 
 $``ls`` (i.e. list the current folder)
 
-###Development tools
+### Development tools
 
 - Download and install [PyCharm Community Edition](https://www.jetbrains.com/pycharm/download/) 
 
@@ -43,11 +44,11 @@ $``ls`` (i.e. list the current folder)
     2) Choose a Python 3 interpreter
     ![Choose a Python 3 interpreter](./_doc/img/python_interpreter.png)
 
-###RaspberryPi (rPi) initialization:
+### RaspberryPi (rPi) initialization:
 
 Please follow [this link](https://www.imore.com/how-get-started-using-raspberry-pi) to format SD card and install Raspbian (Debian version for rPi)
 
-###RaspberryPi (rPi) connection:
+### RaspberryPi (rPi) connection:
 
 1) Please make sure that your raspberryPi is connected to the same wifi as your computer sharing connection between both via ethernet cable.
 
@@ -65,7 +66,7 @@ Mac: https://medium.com/@tzhenghao/how-to-ssh-into-your-raspberry-pi-with-a-mac-
 
 $`ssh pi@{raspberry-ip}` {raspberry-ip} means it is a variable that you have to change with the raspberry IP (192.23.98.10 for example). It will ask you for a password, the default one is **raspberry**
 
-###RaspberryPi (rPi) installation:
+### RaspberryPi (rPi) installation:
 
 In this project, we use **python3**. In order order to install python3 packages, please use pip3 packages installer. It should be already in rPi but nevertheless:
 
@@ -96,7 +97,7 @@ In this project, we use **python3**. In order order to install python3 packages,
 
     $`./scripts/install_raspberry_pi.sh` (it will ask you for password two times)
 
-###Server installation:
+### Server installation:
 
 In order to have a Python Webserver and an easy websocket usage, we gonna use python Tornado framework.  
 
@@ -107,12 +108,12 @@ In order to have a Python Webserver and an easy websocket usage, we gonna use py
 
     $`pip3 install tornado`
 
-###Usage
+### Usage
 
 Everything is now installed !
 
   
-###Run the local server
+### Run the local server
 
 You can now run the local webserver typing in your project folder :
 `python3 ./server/webserver.py`
@@ -155,7 +156,7 @@ You can find client config file into the raspberryPi/config/ folder, named confi
 See [configparser doc](https://docs.python.org/3/library/configparser.html) to use it.
   
 
-####Scripts
+#### Scripts
 
 You can find some useful scripts into server/script/ folder. To run it, **from this folder**, please type ``./server/scripts/{script-name}.sh`` 
 
