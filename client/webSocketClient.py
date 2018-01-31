@@ -62,4 +62,4 @@ if __name__ == "__main__":
                               on_close = on_close,
                               header = { 'hostname' : hostname })
     ws.on_open = on_open
-    ws.run_forever(ping_interval = 10)
+    ws.run_forever()

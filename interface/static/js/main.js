@@ -1,8 +1,8 @@
 $(document).ready(function(){
 
-    var received = $('#received');
-    var main_container = $('#main_container');
-    var socket = new WebSocket("ws://" + server_ip + ":8080/ws");
+    let received = $('#received');
+    let main_container = $('#main_container');
+    let socket = new WebSocket("ws://" + server_ip + ":8080/ws");
 
     socket.onopen = function(){
       console.log("connected");
@@ -16,27 +16,26 @@ $(document).ready(function(){
       console.log("receiving: " + JSONObject.type);
 
       if (JSONObject.type === 'new_connection') {
+          let new_connection = '<div id="'+ JSONObject.hostname +'" class="module_container">'
+            + '<div class="module_ip">'
+            + JSONObject.hostname
+            + '</div>'
+            + '<div class="module_status green_status">'
+            + '</div>'
+            + '</div>';
 
-      let new_connection = '<div id="'+ JSONObject.hostname +'" class="module_container">'
-        + '<div class="module_ip">'
-        + JSONObject.hostname
-        + '</div>'
-        + '<div class="module_status green_status">'
-        + '</div>'
-        + '</div>';
-
-      main_container.append(new_connection);
+          main_container.append(new_connection);
       }
 
       received.append(message.data);
       received.append($('<br/>'));
     };
 
-    socket.onclose = function(){
+    socket.onclose = function() {
       console.log("disconnected");
     };
 
-    var sendMessage = function(message) {
+    let sendMessage = function(message) {
       console.log("sending:" + message.data);
       socket.send(message.data);
     };
@@ -44,7 +43,7 @@ $(document).ready(function(){
     // send a command to the serial port
     $("#cmd_send").click(function(ev){
       ev.preventDefault();
-      var cmd = $('#cmd_value').val();
+      let cmd = $('#cmd_value').val();
       sendMessage({ 'data' : cmd});
       $('#cmd_value').val("");
     });
