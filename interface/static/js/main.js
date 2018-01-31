@@ -40,11 +40,12 @@ $(document).ready(function(){
       socket.send(message.data);
     };
 
-    // send a command to the serial port
+    // Send message to the server
     $("#cmd_send").click(function(ev){
       ev.preventDefault();
-      let cmd = $('#cmd_value').val();
-      sendMessage({ 'data' : cmd});
+
+      let message = $('#cmd_value').val();
+      sendMessage({ 'data' : message});
       $('#cmd_value').val("");
     });
 

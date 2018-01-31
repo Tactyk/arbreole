@@ -7,8 +7,7 @@ import os
 import time
 import configparser
 
-from services import clientSender
-
+from services.clientSender import ClientSender
 from tornado.options import define, options
 
 static_path = os.path.join(os.path.dirname(__file__), '../interface/static')
@@ -23,12 +22,16 @@ define("port", default=8080, help="run on the given port", type=int)
 
 clients = []
 
+
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('../interface/views/index.html', server_ip=server_ip)
 
+
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
+
     def open(self):
+        client_sender = ClientSender()
         if 'Hostname' in self.request.headers:
             client_hostname = self.request.headers['Hostname']
             self.hostname = client_hostname
@@ -37,7 +40,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             self.hostname = client_hostname
         print('New client connection with hostname: ' + client_hostname)
         clients.append(self)
-        clientSender.send_all(client_hostname, clients)
+        client_sender.send_all(client_hostname, clients)
 
     def on_message(self, message):
         print('Receiving from client: %s' % message)
@@ -52,6 +55,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_ping(self, data):
         print('PING ===>' + self.hostname)
 
+
 settings = {
     'debug': True,
     'static_path': static_path
@@ -63,10 +67,10 @@ handlers = [
 ]
 
 if __name__ == '__main__':
-    tornado.options.parse_command_line()
+    print("Server listening on port:", options.port)
+    options.parse_command_line()
     app = tornado.web.Application(handlers, **settings)
     httpServer = tornado.httpserver.HTTPServer(app)
     httpServer.listen(options.port)
-    print("Server listening on port:", options.port)
     mainLoop = tornado.ioloop.IOLoop.instance()
     mainLoop.start()

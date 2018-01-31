@@ -205,4 +205,10 @@ In order to fuse your work with the current project please go on https://github.
 - Click on the create pull request button ![create_pull request button](./_doc/img/create_pull_request.png) 
 - Ask for a review on slack ! 
 
- 
+##TODO 
+pip3 install tornado
+pip3 install pyserial
+pip3 install websocket-client
+
+TroubleShootings - Import not recognize
+open one folder at once with PyCharm
