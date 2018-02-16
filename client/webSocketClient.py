@@ -2,20 +2,25 @@ import websocket
 import time
 import configparser
 import os
-import serial
+import json
 
 from services.serialWriter import SerialWriter
+from services.serverSender import ServerSender
+from services.simulator import Simulator
 
 config = configparser.ConfigParser()
-config.read('./config/config.ini')
+config.read('../config/config.ini')
 
 debug = True
+simulation = True
 
 if not debug:
     global serialWriter
     # Connect to Arduino via serial
     try:
         serialWriter = SerialWriter()
+
+        print("Serial writeconnected")
     except:
         print("Arduino not connected")
 
@@ -34,16 +39,15 @@ def on_error(ws, error):
 def on_close(ws):
     print("### CLOSED ###")
 
-
 def on_open(ws):
     print("### OPEN ###")
-
+    if simulation is True:
+        simulator = Simulator(ws)
+        simulator.start_simulation()
 
 address = config['server']['ServerIP'] + ':' + config['server']['ServerPort']
 print(address)
 hostname = os.uname()[1]
-
-print(address)
 
 if __name__ == "__main__":
     websocket.enableTrace(True)
