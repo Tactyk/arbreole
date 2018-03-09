@@ -6,6 +6,7 @@ import tornado.gen
 import os
 import configparser
 import json
+import time
 
 from tinydb import TinyDB, Query
 from services.clientSender import ClientSender
@@ -50,22 +51,14 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         print('Receiving from client: %s' % message)
         message_decoded = json.loads(message)
-        print(message_decoded)
+        print("DB STATE", db.all())
+        if 'type' in message_decoded:
+            if 'rpi_client' == message_decoded['type']:
+                update_table(message_decoded)
+                print("DB STATE", db.all())
 
-        if 'bar' in message_decoded:
-            print(message_decoded['bar'])
-            db.insert({'id': message_decoded['bar'], 'type': 'bppppar', 'count': 4})
-            print("DB STATE", db.all())
-        if 'foo' in message_decoded:
-            print(message_decoded['foo'])
-            db.insert({'type': 'apple', 'count': 7})
-            print("DB STATE", db.all())
-        if 'tieps' in message_decoded:
-            print(message_decoded['tieps'])
-            update_table('yoyoyoy')
-            print("DB STATE", db.all())
-        for client in clients:
-            client.write_message(message)
+#        for client in clients:
+#            client.write_message(message)
 
     def on_close(self):
         print('Client connection closed')
@@ -93,7 +86,8 @@ def pre_update():
 @pre_update()
 def update_table(msg):
     Rpi = Query()
-    db.update({'count': msg}, Rpi.type == 'apple')
+    msg['time'] = time.time()
+    db.upsert(msg, Rpi.id == msg['id'])
 
 settings = {
     'debug': True,

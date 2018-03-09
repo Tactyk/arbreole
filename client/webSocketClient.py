@@ -39,12 +39,14 @@ def on_error(ws, error):
 def on_close(ws):
     print("### CLOSED ###")
 
+
 def on_open(ws):
     print("### OPEN ###")
     sender = ServerSender(ws)
     if simulation is True:
         simulator = Simulator(sender)
         simulator.start_simulation()
+
 
 address = config['server']['ServerIP'] + ':' + config['server']['ServerPort']
 print(address)
