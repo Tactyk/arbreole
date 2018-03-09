@@ -31,7 +31,8 @@ clients = []
 # Webserver Handler
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render('../interface/views/index.html', server_ip=server_ip)
+        address = server_ip + ':' + server_port
+        self.render('../interface/views/index.html', address=address)
 
 # Socket Handler
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
