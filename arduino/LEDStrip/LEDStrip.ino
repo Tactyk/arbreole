@@ -1,3 +1,7 @@
+/**
+ * This is the Arduino code that controls the LEDStrip only.
+ */
+
 #include "Adafruit_WS2801.h"
 #include "SPI.h" // Comment out this line if using Trinket or Gemma
 #ifdef __AVR_ATtiny85__
@@ -30,18 +34,13 @@ Example sketch for driving Adafruit WS2801 pixels!
 // Can be any valid output pins.
 // The colors of the wires may be totally different so
 // BE SURE TO CHECK YOUR PIXELS TO SEE WHICH WIRES TO USE!
-uint8_t dataPin  = 2;    // Yellow wire on Adafruit Pixels
-uint8_t clockPin = 3;    // Green wire on Adafruit Pixels
+uint8_t dataPin  = 11;    // Yellow wire on Adafruit Pixels
+uint8_t clockPin = 12;    // Green wire on Adafruit Pixels
 
 // Don't forget to connect the ground wire to Arduino ground,
 // and the +5V wire to a +5V supply
 
-// Choose the pins for the 3 LEDs
-const int ledPin1 = 13;
-const int ledPin2 = 9;
-const int ledPin3 = 8;
-
-// Set the first variable to the NUMBER of pixels. 25 = 25 pixels in a row
+// Set the first variable to the NUMBER of pixels. 12 = 12 pixels in a row
 Adafruit_WS2801 strip = Adafruit_WS2801(12, dataPin, clockPin);
 
 // Optional: leave off pin numbers to use hardware SPI
@@ -58,10 +57,6 @@ Adafruit_WS2801 strip = Adafruit_WS2801(12, dataPin, clockPin);
 //Adafruit_WS2801 strip = Adafruit_WS2801(25, WS2801_GRB);
 
 void setup() {
-  // Setup the 3 LEDs
-  pinMode(ledPin1, OUTPUT);
-  pinMode(ledPin2, OUTPUT);
-  pinMode(ledPin3, OUTPUT);
   Serial.begin(9600);
 
 #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000L)
@@ -85,12 +80,6 @@ void loop() {
     Serial.println(readValue - '0');
      light(readValue - '0');
   }
-
-//  colorWipe(Color(255, 0, 0), 50);
-//  colorWipe(Color(0, 255, 0), 500);
-//  colorWipe(Color(0, 0, 255), 30);
-//  rainbow(20);
-//  rainbowCycle(20);
 }
 
 void rainbow(uint8_t wait) {
@@ -168,36 +157,22 @@ uint32_t Wheel(byte WheelPos)
 void light(int n){
   switch(n)
   {
+    case 0:
+      colorWipe(Color(0, 0, 0), 0);
+      break;
     case 1:
-    digitalWrite(ledPin1, HIGH);
-    colorWipe(Color(255, 0, 0), 50);
-    colorWipe(Color(0, 0, 0), 0);
-    delay(1000);
-    digitalWrite(ledPin1, LOW);
-    delay(1000);
-    break;
-      case 2:
-    digitalWrite(ledPin2, HIGH);
-    colorWipe(Color(0, 255, 0), 500);
-    colorWipe(Color(0, 0, 0), 0);
-    delay(1000);
-    digitalWrite(ledPin2, LOW);
-    delay(1000);
-    break;
-      case 3:
-    digitalWrite(ledPin3, HIGH);
-    colorWipe(Color(0, 0, 255), 30);
-    colorWipe(Color(0, 0, 0), 0);
-    delay(1000);
-    digitalWrite(ledPin3, LOW);
-    delay(1000);
-    break;
-      case 4:
-    rainbow(20);
-    colorWipe(Color(0, 0, 0), 0);
-    break;
-      case 5:
-    rainbowCycle(20);
-    colorWipe(Color(0, 0, 0), 0);
+      colorWipe(Color(255, 0, 0), 50);
+      break;
+    case 2:
+      colorWipe(Color(0, 255, 0), 500);
+      break;
+    case 3:
+      colorWipe(Color(0, 0, 255), 30);
+      break;
+    case 4:
+      rainbow(20);
+      break;
+    case 5:
+      rainbowCycle(20);
   }
 }

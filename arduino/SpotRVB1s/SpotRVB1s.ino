@@ -6,9 +6,9 @@
  */
  
 // Define Pins
-#define GREEN 12
-#define BLUE 11
-#define RED 10
+#define RED 6
+#define GREEN 5
+#define BLUE 4
 
 // define variables
 
