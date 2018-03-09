@@ -76,7 +76,7 @@ handlers = [
 ]
 
 if __name__ == '__main__':
-    print("Server listening on ip:", options.port, "at port", options.ip)
+    print("Server listening on ip:", options.ip, "at port", options.port)
 
     options.parse_command_line()
 
