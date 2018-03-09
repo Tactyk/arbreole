@@ -107,6 +107,9 @@ In order to have a Python Webserver and an easy websocket usage, we gonna use py
 - Install tornado:
 
     $`pip3 install tornado`
+- Install Tiny Db to handle module states 
+        
+        $`pip3 install tinyDB`  
 
 ### Usage
 

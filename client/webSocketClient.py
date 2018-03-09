@@ -41,8 +41,9 @@ def on_close(ws):
 
 def on_open(ws):
     print("### OPEN ###")
+    sender = ServerSender(ws)
     if simulation is True:
-        simulator = Simulator(ws)
+        simulator = Simulator(sender)
         simulator.start_simulation()
 
 address = config['server']['ServerIP'] + ':' + config['server']['ServerPort']

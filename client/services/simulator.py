@@ -1,14 +1,17 @@
-import json
 import time
+import os
+
+from .serverSender import ServerSender
 
 class Simulator:
 
-    def __init__(self, socket):
-        self.socket = socket
+    def __init__(self, sender):
+        self.sender = sender
 
     def start_simulation(self):
-        message_serialized = json.dumps({'foo': 'hello'})
-        self.socket.send(message_serialized)
-        time.sleep(5)
-        message_serialized_2 = json.dumps({'bar': 'world'})
-        self.socket.send(message_serialized_2)
+
+        self.sender.send('EVENT_STATE_1')
+        time.sleep(1)
+        self.sender.send('EVENT_STATE_2')
+        time.sleep(1)
+        self.sender.send('EVENT_STATE_3')

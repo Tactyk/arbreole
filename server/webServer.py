@@ -7,6 +7,7 @@ import os
 import configparser
 import json
 
+from tinydb import TinyDB, Query
 from services.clientSender import ClientSender
 from tornado.options import define, options
 
@@ -17,6 +18,8 @@ config = configparser.ConfigParser()
 config.read(config_path + '/config.ini')
 server_ip = config['server']['ServerIP']
 server_port = config['server']['ServerPort']
+db = TinyDB('db.json')
+db.purge_tables()
 
 # Defining tornado's global options
 define("port", default=server_port, help="Server run on the given port", type=int)
@@ -47,11 +50,20 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         print('Receiving from client: %s' % message)
         message_decoded = json.loads(message)
+        print(message_decoded)
+
         if 'bar' in message_decoded:
             print(message_decoded['bar'])
+            db.insert({'id': message_decoded['bar'], 'type': 'bppppar', 'count': 4})
+            print("DB STATE", db.all())
         if 'foo' in message_decoded:
             print(message_decoded['foo'])
-
+            db.insert({'type': 'apple', 'count': 7})
+            print("DB STATE", db.all())
+        if 'tieps' in message_decoded:
+            print(message_decoded['tieps'])
+            update_table('yoyoyoy')
+            print("DB STATE", db.all())
         for client in clients:
             client.write_message(message)
 
@@ -63,6 +75,25 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_ping(self, data):
         print('PING ===>' + self.hostname)
 
+
+def pre_update():
+    def decorated(func):
+        def wrapper(*args, **kwargs):
+            print("Exécution de la fonction %s." % func.__name__)
+            for arg in args:
+                print(arg)
+
+            response = func(*args, **kwargs)
+            print ("Post-traitement.")
+            return response
+        return wrapper
+    return decorated
+
+
+@pre_update()
+def update_table(msg):
+    Rpi = Query()
+    db.update({'count': msg}, Rpi.type == 'apple')
 
 settings = {
     'debug': True,
