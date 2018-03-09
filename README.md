@@ -87,7 +87,7 @@ In this project, we use **python3**. In order order to install python3 packages,
 
 * In **your machine** from **your project folder** (arbreole/):
 
-  $`./scripts/install_raspberry_pi.sh` (it will ask you for password two times)
+  $`./scripts/deploy_all_raspberry_pi.sh` (it may ask you for the raspberry pi password)
 
 ### Server installation:
 

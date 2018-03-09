@@ -31,7 +31,8 @@ clients = []
 # Webserver Handler
 class IndexHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render('../interface/views/index.html', server_ip=server_ip)
+        address = server_ip + ':' + server_port
+        self.render('../interface/views/index.html', address=address)
 
 # Socket Handler
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
@@ -106,7 +107,7 @@ handlers = [
 ]
 
 if __name__ == '__main__':
-    print("Server listening on ip:", options.port, "at port", options.ip)
+    print("Server listening on ip:", options.ip, "at port", options.port)
 
     options.parse_command_line()
 

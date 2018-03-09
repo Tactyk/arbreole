@@ -3,8 +3,8 @@
   <head>
     <link rel="stylesheet" type="text/css" href="{{ static_url('css/main.css') }}">
     <script>
-      var server_ip = "{{ server_ip }}";
-    </script>
+    var address = "{{ address }}";
+</script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script type="text/javascript" src="{{ static_url('js/main.js') }}"></script>
   </head>
@@ -14,12 +14,12 @@
   </div>
 
 
-  <h1>Websockets serial console {{ server_ip }}</h1>
+  <h1>Websockets serial console {{ address }}</h1>
   <p>Data received from serial port</p>
   <div id="received">
   </div>
   <button id="clear">Clear</button>
-  
+
   <p>Send data to serial port</p>
   <form id="sent">
   	<input type="text" id="cmd_value">

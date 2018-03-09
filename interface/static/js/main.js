@@ -1,60 +1,60 @@
-$(document).ready(function(){
+$(document).ready(function() {
+  let received = $("#received");
+  let main_container = $("#main_container");
+  let socket = new WebSocket("ws://" + address + "/ws");
 
-    let received = $('#received');
-    let main_container = $('#main_container');
-    let socket = new WebSocket("ws://" + server_ip + ":8181/ws");
+  socket.onopen = function() {
+    console.log("connected");
+  };
 
-    socket.onopen = function() {
-      console.log("connected");
-    };
+  socket.onmessage = function(message) {
+    console.log(message);
+    let JSONObject = JSON.parse(message.data);
+    console.log("receiving: " + JSONObject.message);
+    console.log("receiving: " + JSONObject.hostname);
+    console.log("receiving: " + JSONObject.type);
 
-    socket.onmessage = function(message) {
+    if (JSONObject.type === "new_connection") {
+      let new_connection =
+        '<div id="' +
+        JSONObject.hostname +
+        '" class="module_container">' +
+        '<div class="module_ip">' +
+        JSONObject.hostname +
+        "</div>" +
+        '<div class="module_status green_status">' +
+        "</div>" +
+        "</div>";
 
-      let JSONObject = JSON.parse(message.data);
-      console.log("receiving: " + JSONObject.message);
-      console.log("receiving: " + JSONObject.hostname);
-      console.log("receiving: " + JSONObject.type);
+      main_container.append(new_connection);
+    }
 
-      if (JSONObject.type === 'new_connection') {
-          let new_connection = '<div id="'+ JSONObject.hostname +'" class="module_container">'
-            + '<div class="module_ip">'
-            + JSONObject.hostname
-            + '</div>'
-            + '<div class="module_status green_status">'
-            + '</div>'
-            + '</div>';
+    received.append(message.data);
+    received.append($("<br/>"));
+  };
 
-          main_container.append(new_connection);
-      }
+  socket.onclose = function() {
+    console.log("disconnected");
+  };
 
-      received.append(message.data);
-      received.append($('<br/>'));
-    };
+  let sendMessage = function(data) {
+    console.log("sending:" + data.message);
+    socket.send(JSON.stringify(data));
+  };
 
-    socket.onclose = function() {
-      console.log("disconnected");
-    };
+  // Send message to the server
+  $("#cmd_send").click(function(ev) {
+    ev.preventDefault();
 
-    let sendMessage = function(data) {
-      console.log("sending:" + data.message);
-      socket.send(JSON.stringify(data));
-    };
-
-    // Send message to the server
-    $("#cmd_send").click(function(ev){
-      ev.preventDefault();
-
-      let message = $('#cmd_value').val();
-      sendMessage(
-          {
-              'message' : message,
-              'type' : 'interface',
-          }
-      );
-      $('#cmd_value').val("");
+    let message = $("#cmd_value").val();
+    sendMessage({
+      message: message,
+      type: "interface"
     });
+    $("#cmd_value").val("");
+  });
 
-    $('#clear').click(function(){
-      received.empty();
-    });
+  $("#clear").click(function() {
+    received.empty();
+  });
 });

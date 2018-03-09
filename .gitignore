@@ -1,3 +1,4 @@
 .DS_Store
 .idea/
 server/services/__pycache__/
+db.json
