@@ -1,10 +1,11 @@
 class ClientSender:
 
     @staticmethod
-    def send_all(hostname, clients):
+    def send_all(hostname, type, clients, msg=None):
         for client in clients:
-            client.write_message(({
-                "message": "Connection opened",
-                "hostname": hostname,
-                "type": "new_connection",
-            }))
+            if client.hostname != hostname:
+                client.write_message({
+                    'hostname': hostname,
+                    'message': msg,
+                    'type': type,
+                })

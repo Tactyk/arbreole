@@ -2,13 +2,13 @@ $(document).ready(function(){
 
     let received = $('#received');
     let main_container = $('#main_container');
-    let socket = new WebSocket("ws://" + server_ip + ":8080/ws");
+    let socket = new WebSocket("ws://" + server_ip + ":8181/ws");
 
-    socket.onopen = function(){
+    socket.onopen = function() {
       console.log("connected");
     };
 
-    socket.onmessage = function (message) {
+    socket.onmessage = function(message) {
 
       let JSONObject = JSON.parse(message.data);
       console.log("receiving: " + JSONObject.message);
@@ -35,9 +35,9 @@ $(document).ready(function(){
       console.log("disconnected");
     };
 
-    let sendMessage = function(message) {
-      console.log("sending:" + message.data);
-      socket.send(message.data);
+    let sendMessage = function(data) {
+      console.log("sending:" + data.message);
+      socket.send(JSON.stringify(data));
     };
 
     // Send message to the server
@@ -45,7 +45,12 @@ $(document).ready(function(){
       ev.preventDefault();
 
       let message = $('#cmd_value').val();
-      sendMessage({ 'data' : message});
+      sendMessage(
+          {
+              'message' : message,
+              'type' : 'interface',
+          }
+      );
       $('#cmd_value').val("");
     });
 

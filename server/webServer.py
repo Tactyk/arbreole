@@ -45,8 +45,8 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             client_hostname = 'interface'
             self.hostname = client_hostname
         print('New client connection with hostname: ' + client_hostname)
+        client_sender.send_all(client_hostname, 'new_connection', clients)
         clients.append(self)
-        client_sender.send_all(client_hostname, clients)
 
     def on_message(self, message):
         print('Receiving from client: %s' % message)
@@ -56,28 +56,27 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
             if 'rpi_client' == message_decoded['type']:
                 update_table(message_decoded)
                 print("DB STATE", db.all())
+            if 'interface' == message_decoded['type']:
+                print("INTERFACE MSG", message_decoded)
 
-#        for client in clients:
-#            client.write_message(message)
+                for client in clients:
+                    print(client.hostname)
+                    print(message_decoded['message'])
+                    client.write_message(message_decoded['message'])
 
     def on_close(self):
         print('Client connection closed')
         print(self.hostname)
         clients.remove(self)
 
-    def on_ping(self, data):
-        print('PING ===>' + self.hostname)
-
 
 def pre_update():
     def decorated(func):
         def wrapper(*args, **kwargs):
             print("Exécution de la fonction %s." % func.__name__)
-            for arg in args:
-                print(arg)
-
             response = func(*args, **kwargs)
             print ("Post-traitement.")
+            analyse_db()
             return response
         return wrapper
     return decorated
@@ -88,6 +87,12 @@ def update_table(msg):
     Rpi = Query()
     msg['time'] = time.time()
     db.upsert(msg, Rpi.id == msg['id'])
+
+
+def analyse_db():
+    results = db.all()
+    print('post Request::DB STATE', results)
+
 
 settings = {
     'debug': True,

@@ -11,16 +11,16 @@ from services.simulator import Simulator
 config = configparser.ConfigParser()
 config.read('../config/config.ini')
 
-debug = True
+connect_to_arduino = False
 simulation = True
 
-if not debug:
+if connect_to_arduino:
     global serialWriter
     # Connect to Arduino via serial
     try:
         serialWriter = SerialWriter()
 
-        print("Serial writeconnected")
+        print("Arduino connected")
     except:
         print("Arduino not connected")
 
@@ -28,7 +28,7 @@ if not debug:
 # Input message handling from server
 def on_message(ws, message):
     print("Receiving message: " + message)
-    if not debug:
+    if connect_to_arduino:
         serialWriter.write(message)
 
 
