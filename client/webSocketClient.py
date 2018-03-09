@@ -11,8 +11,8 @@ from services.simulator import Simulator
 config = configparser.ConfigParser()
 config.read('../config/config.ini')
 
-connect_to_arduino = False
-simulation = True
+connect_to_arduino = True
+simulation = False
 
 if connect_to_arduino:
     global serialWriter
