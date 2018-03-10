@@ -8,7 +8,6 @@ $(document).ready(function() {
   };
 
   socket.onmessage = function(message) {
-    console.log(message);
     let JSONObject = JSON.parse(message.data);
     console.log("receiving: " + JSONObject.message);
     console.log("receiving: " + JSONObject.hostname);
