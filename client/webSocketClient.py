@@ -22,6 +22,7 @@ if connect_to_arduino:
 
         print("Arduino connected")
     except:
+        connect_to_arduino = False
         print("Arduino not connected")
 
 
@@ -33,6 +34,7 @@ def on_message(ws, message):
 
 
 def on_error(ws, error):
+    print("### ERROR ###")
     print(error)
 
 
