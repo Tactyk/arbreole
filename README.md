@@ -46,31 +46,39 @@ The `server` folder contains the web server interacting with the RaspberryPi and
   1. Click on the setting wheel and
   2. Choose a Python 3 interpreter ![Choose a Python 3 interpreter](./_doc/img/python_interpreter.png)
 
-### RaspberryPi (rPi) initialization:
+## Setup the RaspberryPi
 
-Follow [this link](https://www.imore.com/how-get-started-using-raspberry-pi) to format SD card and install Raspbian (Debian version for rPi)
+#### 1. RaspberryPi Initialization
 
-### RaspberryPi (rPi) connection:
+Follow [this link](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) to initialize the Raspberry Pi (use the Raspbian Stretch LITE image)
 
-1. Make sure that your raspberryPi is connected to the same wifi as your computer sharing connection between both via ethernet cable.
+#### 2. SSH to your RaspberryPi
 
-Linux (Ubuntu): https://roughlea.wordpress.com/raspberry-pi-experiences/configure-the-raspberry-pi-to-share-a-linux-internet-connection/
+* Make sure that your rPi and your computer are connected to the same network (via ethernet cable or WIFI dongle).
 
-Mac: https://medium.com/@tzhenghao/how-to-ssh-into-your-raspberry-pi-with-a-mac-and-ethernet-cable-636a197d055`
+  - If you have a WIFI Dongle, follow [this link](https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md) to configure it
+  - If you don't have a router, you can share your computer's Ethernet connection, see:
+    - [Linux (Ubuntu)](https://roughlea.wordpress.com/raspberry-pi-experiences/configure-the-raspberry-pi-to-share-a-linux-internet-connection/)
+    - [Mac OS](https://medium.com/@tzhenghao/how-to-ssh-into-your-raspberry-pi-with-a-mac-and-ethernet-cable-636a197d055)
 
-2. Find RaspberryPi IP:
+* **Enable the ssh on your rPi** by following [this link](https://www.raspberrypi.org/documentation/remote-access/ssh/)
 
-* into the raspberryPi (need to cable a monitor with an HDMI), open a terminal and type
-  $ `ifconfig`
-* copy the raspberryPi (en0) IP. Replace the IP in the arbreole/scripts/raspberry_hostnames (remember me keep the "pi@")
+* From your computer you should now be able to connect to your raspberryPi via ssh.
 
-* From your computer you can now connect to your raspberryPi via ssh.
+  ```sh
+  $ ssh pi@raspberry.local
+  ```
 
-$`ssh pi@{raspberry-ip}` {raspberry-ip} means it is a variable that you have to change with the raspberry IP (192.23.98.10 for example). It will ask you for a password, the default one is **raspberry**
+  - `pi` is the rPi user
+  - `raspberry` is the rPi hostname
+  - `raspberry.local` is the rPi host address
+  - The default password for the pi user is: **raspberry**
 
-### RaspberryPi (rPi) client installation:
+  Follow [this link](https://thepihut.com/blogs/raspberry-pi-tutorials/19668676-renaming-your-raspberry-pi-the-hostname) if you want to change the rPi hostname
 
-In this project, we use **python3**. In order order to install python3 packages, use the pip3 packages installer. It should be already in rPi but nevertheless:
+#### 3. RaspberryPi (rPi) client installation:
+
+In this project, we use **python3**. In order to install python3 packages, use the pip3 packages installer. It should be already in rPi but nevertheless:
 
 * SSH into your pi, then
 
@@ -85,9 +93,14 @@ In this project, we use **python3**. In order order to install python3 packages,
   Each module will be recognize by your IDE (PyCharm or other) because it knows the PYTHONPATH global environment var.
   If you needed to put modules in a special folder. You should add its path to PYTHONPATH var to avoid errors in your IDE: `$ export PYTHONPATH="${PYTHONPATH}:/my/other/path"`
 
-* In **your machine** from **your project folder** (arbreole/):
+* In **your machine** from **your project root folder** (arbreole/), execute the following script to copy the raspberry :
 
-  $`./scripts/deploy_all_raspberry_pi.sh` (it may ask you for the raspberry pi password)
+  ```sh
+  $ ./scripts/deploy_raspberry_pi.sh pi raspberrypi.local #raspberrypi.local is the rPi host address
+  ```
+
+  It may ask you for the rPi password (default = raspberry)
+
 
 ### Server installation:
 
@@ -138,9 +151,10 @@ Everything is now connected by websocket. Try to add a text in your web client, 
 
 #### Scripts
 
-You can find some useful scripts into server/script/ folder. To run it, **from your project folder**, type `./server/scripts/{script-name}.sh`
+You can find some useful scripts into ./scripts/ folder. To run it, **from your project root folder**, type `./scripts/{script-name}.sh`
 
-* update_config.sh : update the config.ini file on the RaspberryPi
+* [`./scripts/deploy_raspberry.sh`](./scripts/deploy_raspberry.sh): deploy the local client code to all the raspberry pis
+* [`./scripts/deploy_raspberry.sh pi raspberry.local`](./scripts/deploy_raspberry.sh): deploy the local client code to pi@raspberry.local
 
 ### Contributing
 
