@@ -3,10 +3,14 @@ import time
 import configparser
 import os
 import json
+import atexit
 
-from services.serialWriter import SerialWriter
+import services.checkForArduinoData as checkForArduinoData
+import services.serialHandler as serialHandler
+
 from services.serverSender import ServerSender
 from services.simulator import Simulator
+
 
 config = configparser.ConfigParser()
 config.read('../config/config.ini')
@@ -14,13 +18,25 @@ config.read('../config/config.ini')
 connect_to_arduino = True
 simulation = False
 
+#=========================
+#  code to ensure a cleaan exit
+
+def exit_handler():
+    print("My application is ending!")
+    checkForArduinoData.stopListening()
+    serialHandler.closeSerial()
+
+atexit.register(exit_handler)
+
+#===========================
+
 if connect_to_arduino:
-    global serialWriter
     # Connect to Arduino via serial
     try:
-        serialWriter = SerialWriter()
-
+        serialHandler.setupSerial()
         print("Arduino connected")
+        # Start the listening thread
+        checkForArduinoData.listenForData()
     except:
         connect_to_arduino = False
         print("Arduino not connected")
@@ -30,7 +46,7 @@ if connect_to_arduino:
 def on_message(ws, message):
     print("Receiving message: " + message)
     if connect_to_arduino:
-        serialWriter.write(message)
+        serialHandler.write(message)
 
 
 def on_error(ws, error):
