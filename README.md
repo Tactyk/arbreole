@@ -8,8 +8,8 @@ In your favorite terminal (for Mac we advice you to get iTerm2, for linux the de
 
 ```sh
 $ cd ~  # tilde means home
-$ mkdir arbreole && cd arbreole # mkdir: make directory, cd: change directory
 $ git clone git@github.com:Tactyk/arbreole.git # retrieve code
+$ cd arbreole # cd: change directory
 $ ./setup.sh # Set up ip address and port
 ```
 
