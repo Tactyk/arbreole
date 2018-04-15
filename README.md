@@ -50,20 +50,25 @@ The `server` folder contains the web server interacting with the RaspberryPi and
 
 #### 1. RaspberryPi Initialization
 
-Follow [this link](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) to initialize the Raspberry Pi (use the Raspbian Stretch LITE image)
+- Format your SD Card
+- Follow [this link](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) to initialize the Raspberry Pi (use the Raspbian Stretch LITE image)
+- The default login / password is: pi / raspberry
 
 #### 2. SSH to your RaspberryPi
 
-* Make sure that your rPi and your computer are connected to the same network (via ethernet cable or WIFI dongle).
+* First **enable the ssh on your rPi** by following [this link](https://www.raspberrypi.org/documentation/remote-access/ssh/)
+
+* Make sure that your rPi and your computer are connected to the same network (via direct ethernet cable or WIFI dongle).
 
   - If you have a WIFI Dongle, follow [this link](https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md) to configure it
   - If you don't have a router, you can share your computer's Ethernet connection, see:
     - [Linux (Ubuntu)](https://roughlea.wordpress.com/raspberry-pi-experiences/configure-the-raspberry-pi-to-share-a-linux-internet-connection/)
     - [Mac OS](https://medium.com/@tzhenghao/how-to-ssh-into-your-raspberry-pi-with-a-mac-and-ethernet-cable-636a197d055)
 
-* **Enable the ssh on your rPi** by following [this link](https://www.raspberrypi.org/documentation/remote-access/ssh/)
 
 * From your computer you should now be able to connect to your raspberryPi via ssh.
+
+  - For Windows environment, use [putty](https://www.makeuseof.com/tag/4-easy-ways-to-use-ssh-in-windows/) as a ssh client
 
   ```sh
   $ ssh pi@raspberry.local
