@@ -3,7 +3,7 @@ import time
 import tornado.websocket
 from tinydb import TinyDB, Query
 
-db = TinyDB('db.json')
+db = TinyDB('server.json')
 db.purge_tables()
 clients = []
 
