@@ -137,6 +137,7 @@ def analyseStateAndTriggerEvent(state):
     if state['state'] == 'ACTIVE':
         if (time > 5):
             serverSender.send('ACTIVE_5')
+            serial.
             print('MODULE ACTIVATION >5s :::', time)
 
         elif (time > 1):
@@ -148,6 +149,9 @@ def analyseStateAndTriggerEvent(state):
     if state['state'] == 'INACTIVE':
         serverSender.send('INACTIVE_0')
         print('MODULE INACTIVE:::', time)
+
+def triggerLightEvent(event):
+
 
 address = config['server']['ServerIP'] + ':' + config['server']['ServerPort']
 print(address)
