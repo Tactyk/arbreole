@@ -9,6 +9,7 @@ import services.checkForArduinoData as checkForArduinoData
 import services.serialHandler as serialHandler
 import services.serverSender as serverSender
 import services.clientSimulator as clientSimulator
+import services.dbHandler as dbHandler
 
 from services.serialSimulator import start_simulation
 from tinydb import TinyDB, Query
@@ -17,15 +18,15 @@ from tinydb import TinyDB, Query
 config = configparser.ConfigParser()
 config.read('../config/config.ini')
 
-db = TinyDB('client.json')
-db.purge_tables()
-
 connect_to_arduino = True
 client_simulation = False
 serial_simulation = True
 
+dbHandler.initialize_database()
+dbHandler.initialize_state()
+
 #=========================
-#  code to ensure a cleaan exit
+#  code to ensure a clean exit
 
 def exit_handler():
     print("My application is ending!")
@@ -88,8 +89,7 @@ def pre_update():
             print("Exécution de la fonction %s." % func.__name__)
             print("ARG0", args[0])
 
-            State = Query()
-            res = db.search(State.id == hostname)
+            res = dbHandler.find_state_by_id(hostname)
             currentTime = time.time()
 
             msg = {
@@ -114,13 +114,11 @@ def pre_update():
 def update_state(msg):
 
     print('UPDATE_STATE_MSG', msg)
-    State = Query()
-    db.upsert(msg, State.id == msg['id'])
-    newState = db.search(State.id == hostname)
+    new_state = dbHandler.update_state(msg)
 
-    print('DB STATE', db.all())
+    print('STATE UPDATED', new_state)
 
-    return newState
+    return new_state
 
 
 def transform_data_to_state(data):
@@ -137,7 +135,6 @@ def analyseStateAndTriggerEvent(state):
     if state['state'] == 'ACTIVE':
         if (time > 5):
             serverSender.send('ACTIVE_5')
-            serial.
             print('MODULE ACTIVATION >5s :::', time)
 
         elif (time > 1):
@@ -150,11 +147,10 @@ def analyseStateAndTriggerEvent(state):
         serverSender.send('INACTIVE_0')
         print('MODULE INACTIVE:::', time)
 
-def triggerLightEvent(event):
-
 
 address = config['server']['ServerIP'] + ':' + config['server']['ServerPort']
 print(address)
+
 hostname = os.uname()[1]
 
 
