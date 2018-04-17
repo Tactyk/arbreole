@@ -250,42 +250,45 @@ void setStateFromData() {
   if (newDataFromRpi) {
     newDataFromRpi = false;
 
-    char ** array = NULL;
-    array = explodeDataIntoArray(inputBuffer);
-    Serial.println(array[0]);
-    Serial.println(array[1]);
+    char ** arr= NULL;
+    arr = explodeDataIntoArray(inputBuffer);
+    Serial.println(getArrayLength(arr));
   }
 }
 
 char ** explodeDataIntoArray(char string[]) {
     char ** res  = NULL;
     char *  p    = strtok (inputBuffer, ",");
-    int n_spaces = 0, i;
+    int arrayLength = 0, i;
 
     /* split string and append tokens to 'res' */
     while (p) {
-      res = realloc (res, sizeof (char*) * ++n_spaces);
+      res = realloc (res, sizeof (char*) * ++arrayLength);
     
       if (res == NULL) {
         Serial.println("memory allocation failed");
         return; /* memory allocation failed */
       }
 
-      res[n_spaces-1] = p;
+      res[arrayLength-1] = p;
     
       p = strtok (NULL, ",");
     }
     
     /* realloc one extra element for the last NULL */
-    res = realloc (res, sizeof (char*) * (n_spaces+1));
-    res[n_spaces] = 0;
-
-    /* print the result */
-
-    for (i = 0; i < (n_spaces+1); ++i) {
-      Serial.println(res[i]);
-    }
+    res = realloc (res, sizeof (char*) * (arrayLength+1));
+    res[arrayLength] = 0;
 
     return res;
+}
+
+int getArrayLength(char ** arr) {
+  int arrayLength = 0;
+  while(arr[arrayLength]) {
+//    Serial.println(arr[arrayLength]);
+    arrayLength++;
+  }
+
+  return arrayLength;
 }
 
