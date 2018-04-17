@@ -15,8 +15,9 @@ boolean readInProgress = false;
 boolean newDataFromRpi = false;
 //
 
-
-
+//==================================//
+// Class that handles the LED Strip //
+//==================================//
 class LedStrip
 {
   // Variables initialized in constructor
@@ -36,9 +37,8 @@ class LedStrip
 
   boolean needsUpdate = false; // set to true when the colors change
 
-  // Others
+  // Other variables
   float R;
-
 
   // Constructor - creates a LedStrip 
   // and initializes the member variables and state
@@ -61,11 +61,13 @@ class LedStrip
   }
 
   void TurnOff() {
+    activatedMode = 0;
     setUniformColor(0);
     needsUpdate = true;
   }
 
   void UpdateState(int mode, byte c1[], byte c2[], int d) {
+    Serial.println("Here in the function UpdateState");
     activatedMode = mode;
 
     int i;
@@ -82,10 +84,6 @@ class LedStrip
 
   void Update(unsigned long currentMillis)
   {
-    if (activatedMode == 0) {
-      TurnOff();
-    }
-
     if (activatedMode == 1) {
       Pulse(currentMillis);
     }
@@ -96,40 +94,33 @@ class LedStrip
     }
   }
 
-  void setUniformColor(uint32_t c)
-  {
+  void setUniformColor(uint32_t c) {
     int i;
     
     for (i=0; i < strip.numPixels(); i++) {
         strip.setPixelColor(i, c);
     }
+    needsUpdate = true;
   }
 
-  void Pulse(unsigned long currentMillis)
-  {
+  void Pulse(unsigned long currentMillis) {
     if ((currentMillis - previousMillis) >= updateIntervalTime) {
        previousMillis = millis();
-       setPulsate();
+       setPulseColors();
     }
   }
 
-  void setPulsate()
-  {
-//    Serial.println(R);
+  void setPulseColors() {
     modeStep++;
 
     int rDiff = color2[0]-color1[0];
     int gDiff = color2[1]-color1[1];
     int bDiff = color2[2]-color1[2];
 
-//        Serial.println(rDiff);
-
     float rVariation = (float)rDiff / (float)numberOfSteps;
     float gVariation = (float)gDiff / (float)numberOfSteps;
     float bVariation = (float)bDiff / (float)numberOfSteps;
 
-//    Serial.println(rVariation);
-//    Serial.println(rVariation);
     byte newRed = color1[0] + modeStep * rVariation;
     byte newGreen = color1[1] + modeStep * gVariation;
     byte newBlue = color1[2] + modeStep * bVariation;
@@ -137,12 +128,8 @@ class LedStrip
 //    byte newExpoRed = color1[0] + sign(rDiff) * (pow (2, (modeStep / R)) - 1);
 //    Serial.println(newExpoRed);
 
-//    Serial.println(sign(rDiff));
-//        Serial.println(newRed);
-
-
     setUniformColor(Color(newRed,newGreen,newBlue));
-    needsUpdate = true;
+
     if(modeStep >= numberOfSteps) {
       modeStep = 0;
       byte bufferColorR = color1[0];
@@ -164,8 +151,7 @@ class LedStrip
   }
 
   // Create a 24 bit color value from R,G,B
-  uint32_t Color(byte r, byte g, byte b)
-  {
+  uint32_t Color(byte r, byte g, byte b) {
     uint32_t c;
     c = r;
     c <<= 8;
@@ -176,13 +162,13 @@ class LedStrip
   }
 };
 
+//=============
 uint16_t numberOfLeds = 12; // Number of LEDs on Adafruit Pixels
 uint8_t dataPin  = 11;      // Yellow wire on Adafruit Pixels
 uint8_t clockPin = 12;      // Green wire on Adafruit Pixels
 uint16_t refreshTime = 20;  // refreshTime in milliseconds
 
 LedStrip ledstrip(numberOfLeds, dataPin, clockPin, refreshTime);
-
 //=============
 
 void setup() {
@@ -197,11 +183,6 @@ void setup() {
   
   // tell the PC we are ready
   Serial.println("<Arduino is ready>");
-
-  byte color1[3] = {255,0,255};
-  byte color2[3] = {0,255,0};
-  int duration = 1000;
-  ledstrip.UpdateState(1, color1, color2, duration);
 }
 
 
@@ -250,9 +231,32 @@ void setStateFromData() {
   if (newDataFromRpi) {
     newDataFromRpi = false;
 
+//
+    Serial.print("<");
+    Serial.print(inputBuffer);
+    Serial.println(">");
+//
+
     char ** arr= NULL;
     arr = explodeDataIntoArray(inputBuffer);
-    Serial.println(getArrayLength(arr));
+
+    if (strcmp(arr[0], "L") == 0) {
+      Serial.println("Coucou le led strip");
+      if (strcmp(arr[1], "1") == 0) {
+        Serial.println(arr[1]);
+        Serial.println("Coucou le mode 1");
+        byte color1[3] = {atoi(arr[2]),atoi(arr[3]),atoi(arr[4])};
+        byte color2[3] = {atoi(arr[5]),atoi(arr[6]),atoi(arr[7])};
+        int duration = atoi(arr[8]);
+        ledstrip.UpdateState(atoi(arr[1]), color1, color2, duration);
+      }
+
+      if (strcmp(arr[1], "0") == 0) {
+        Serial.println("coucou le mode 0");
+        ledstrip.TurnOff();
+      }
+
+    }
   }
 }
 
@@ -285,10 +289,8 @@ char ** explodeDataIntoArray(char string[]) {
 int getArrayLength(char ** arr) {
   int arrayLength = 0;
   while(arr[arrayLength]) {
-//    Serial.println(arr[arrayLength]);
     arrayLength++;
   }
 
   return arrayLength;
 }
-
