@@ -5,6 +5,18 @@
  #include <avr/power.h>
 #endif
 
+// SERIAL VARIABLES
+const byte buffSize = 40;
+char inputBuffer[buffSize];
+const char startMarker = '<';
+const char endMarker = '>';
+byte bytesRecvd = 0;
+boolean readInProgress = false;
+boolean newDataFromRpi = false;
+//
+
+
+
 class LedStrip
 {
   // Variables initialized in constructor
@@ -22,7 +34,7 @@ class LedStrip
   int numberOfSteps;
   int modeStep;
 
-  bool needsUpdate = false; // set to true when the colors change
+  boolean needsUpdate = false; // set to true when the colors change
 
   // Others
   float R;
@@ -192,13 +204,88 @@ void setup() {
   ledstrip.UpdateState(1, color1, color2, duration);
 }
 
+
 //=============
-
-
 unsigned long curMillis;
 
+//=============
 void loop() {
   curMillis = millis();
+  getDataFromRpi();
+  setStateFromData();
   ledstrip.Update(curMillis);
+}
+
+//=============
+// Receive data from Rpi and save it into inputBuffer
+//=============
+void getDataFromRpi() {
+  if (Serial.available() > 0) {
+    char x = Serial.read();
+
+    // the order of these IF clauses is significant  
+    if (x == endMarker) {
+      readInProgress = false;
+      newDataFromRpi = true;
+      inputBuffer[bytesRecvd] = 0;
+    }
+    
+    if(readInProgress) {
+      inputBuffer[bytesRecvd] = x;
+      bytesRecvd ++;
+      if (bytesRecvd == buffSize) {
+        bytesRecvd = buffSize - 1;
+      }
+    }
+
+    if (x == startMarker) { 
+      bytesRecvd = 0; 
+      readInProgress = true;
+    }
+  }
+}
+
+// Data = L,M,args
+void setStateFromData() {
+  if (newDataFromRpi) {
+    newDataFromRpi = false;
+
+    char ** array = NULL;
+    array = explodeDataIntoArray(inputBuffer);
+    Serial.println(array[0]);
+    Serial.println(array[1]);
+  }
+}
+
+char ** explodeDataIntoArray(char string[]) {
+    char ** res  = NULL;
+    char *  p    = strtok (inputBuffer, ",");
+    int n_spaces = 0, i;
+
+    /* split string and append tokens to 'res' */
+    while (p) {
+      res = realloc (res, sizeof (char*) * ++n_spaces);
+    
+      if (res == NULL) {
+        Serial.println("memory allocation failed");
+        return; /* memory allocation failed */
+      }
+
+      res[n_spaces-1] = p;
+    
+      p = strtok (NULL, ",");
+    }
+    
+    /* realloc one extra element for the last NULL */
+    res = realloc (res, sizeof (char*) * (n_spaces+1));
+    res[n_spaces] = 0;
+
+    /* print the result */
+
+    for (i = 0; i < (n_spaces+1); ++i) {
+      Serial.println(res[i]);
+    }
+
+    return res;
 }
 
