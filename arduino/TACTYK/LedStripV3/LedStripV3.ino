@@ -7,21 +7,24 @@
 
 class LedStrip
 {
-  // Class Member Variables
-  // These are initialized at startup
+  // Variables initialized in constructor
   Adafruit_WS2801 strip;
   uint16_t updateIntervalTime;
 
-  // These maintain the current state
-  unsigned long pulsatePreviousMillis = 0;   // will store last time the strip was updated
-  unsigned long lastUpdate = 0;   // will store last time the strip was updated
+  // State variables that are updated after reading Raspberry Pi message
+  int activatedMode;
+  int duration;
+  byte color1[3];
+  byte color2[3];
 
-  int pulsateCycles = 0;
-  int duration = 5000;
-  byte color1[3] = {0,0,0};
-  byte color2[3] = {255,0,0};
+  // Variables useful in handling each behaviour
+  unsigned long previousMillis = 0;   // store last time the strip was updated
   int numberOfSteps;
+  int modeStep;
 
+  bool needsUpdate = false; // set to true when the colors change
+
+  // Others
   float R;
 
 
@@ -33,12 +36,10 @@ class LedStrip
     // dataPin is the Yellow wire on Adafruit Pixels
     // clockPin is the Green wire on Adafruit Pixels
     strip = Adafruit_WS2801(numberOfLeds, dataPin, clockPin);
-
     updateIntervalTime = refreshTime;
-    numberOfSteps = duration / updateIntervalTime;
 
       // Calculate the R variable (only needs to be done once at setup)
-    R = (numberOfSteps * log10(2))/(log10(255));
+//    R = (numberOfSteps * log10(2))/(log10(255));
   }
 
   void Begin()
@@ -47,12 +48,39 @@ class LedStrip
     strip.show();
   }
 
+  void TurnOff() {
+    setUniformColor(0);
+    needsUpdate = true;
+  }
+
+  void UpdateState(int mode, byte c1[], byte c2[], int d) {
+    activatedMode = mode;
+
+    int i;
+    for (i = 0; i < 3; ++i) {
+      color1[i] = c1[i];
+      color2[i] = c2[i];
+    }
+    duration = d;
+
+    // Reset variables
+    numberOfSteps = duration / updateIntervalTime;
+    modeStep = 0;
+  }
+
   void Update(unsigned long currentMillis)
   {
-    if (currentMillis - lastUpdate >= updateIntervalTime) {
-//      Serial.println(lastUpdate);
-      lastUpdate = currentMillis;
+    if (activatedMode == 0) {
+      TurnOff();
+    }
+
+    if (activatedMode == 1) {
+      Pulse(currentMillis);
+    }
+
+    if (needsUpdate) {
       strip.show();
+      needsUpdate = false;
     }
   }
 
@@ -63,13 +91,12 @@ class LedStrip
     for (i=0; i < strip.numPixels(); i++) {
         strip.setPixelColor(i, c);
     }
-//    strip.show();
   }
 
-  void pulsate(unsigned long currentMillis, byte * c1, byte * c2, uint16_t duration)
+  void Pulse(unsigned long currentMillis)
   {
-    if ((unsigned long)(millis() - pulsatePreviousMillis) >= updateIntervalTime) {
-       pulsatePreviousMillis = millis();
+    if ((currentMillis - previousMillis) >= updateIntervalTime) {
+       previousMillis = millis();
        setPulsate();
     }
   }
@@ -77,7 +104,7 @@ class LedStrip
   void setPulsate()
   {
 //    Serial.println(R);
-    pulsateCycles++;
+    modeStep++;
 
     int rDiff = color2[0]-color1[0];
     int gDiff = color2[1]-color1[1];
@@ -91,11 +118,11 @@ class LedStrip
 
 //    Serial.println(rVariation);
 //    Serial.println(rVariation);
-    byte newRed = color1[0] + pulsateCycles * rVariation;
-    byte newGreen = color1[1] + pulsateCycles * gVariation;
-    byte newBlue = color1[2] + pulsateCycles * bVariation;
+    byte newRed = color1[0] + modeStep * rVariation;
+    byte newGreen = color1[1] + modeStep * gVariation;
+    byte newBlue = color1[2] + modeStep * bVariation;
 
-//    byte newExpoRed = color1[0] + sign(rDiff) * (pow (2, (pulsateCycles / R)) - 1);
+//    byte newExpoRed = color1[0] + sign(rDiff) * (pow (2, (modeStep / R)) - 1);
 //    Serial.println(newExpoRed);
 
 //    Serial.println(sign(rDiff));
@@ -103,8 +130,9 @@ class LedStrip
 
 
     setUniformColor(Color(newRed,newGreen,newBlue));
-    if(pulsateCycles >= numberOfSteps) {
-      pulsateCycles = 0; 
+    needsUpdate = true;
+    if(modeStep >= numberOfSteps) {
+      modeStep = 0;
       byte bufferColorR = color1[0];
       byte bufferColorG = color1[1];
       byte bufferColorB = color1[2];
@@ -136,16 +164,12 @@ class LedStrip
   }
 };
 
-uint8_t dataPin  = 11;     // Yellow wire on Adafruit Pixels
-uint8_t clockPin = 12;     // Green wire on Adafruit Pixels
-uint16_t refreshTime = 200; // refreshTime in milliseconds
+uint16_t numberOfLeds = 12; // Number of LEDs on Adafruit Pixels
+uint8_t dataPin  = 11;      // Yellow wire on Adafruit Pixels
+uint8_t clockPin = 12;      // Green wire on Adafruit Pixels
+uint16_t refreshTime = 20;  // refreshTime in milliseconds
 
-LedStrip ledstrip(12, dataPin, clockPin, refreshTime);
-
-
-unsigned long curMillis;
-
-
+LedStrip ledstrip(numberOfLeds, dataPin, clockPin, refreshTime);
 
 //=============
 
@@ -157,33 +181,24 @@ void setup() {
     clock_prescale_set(clock_div_1); // Enable 16 MHz on Trinket
   #endif
 
-uint8_t dataPin  = 11;    // Yellow wire on Adafruit Pixels
-uint8_t clockPin = 12;    // Green wire on Adafruit Pixels
-
-
   ledstrip.Begin();
   
   // tell the PC we are ready
   Serial.println("<Arduino is ready>");
+
+  byte color1[3] = {255,0,255};
+  byte color2[3] = {0,255,0};
+  int duration = 1000;
+  ledstrip.UpdateState(1, color1, color2, duration);
 }
-
-
-byte color1[3] = {20,0,0};
-byte color2[3] = {255,0,0};
-uint16_t transitionTime = 10000; //2 seconds
 
 //=============
 
+
+unsigned long curMillis;
+
 void loop() {
   curMillis = millis();
-//  ledstrip.setUniformColor(Color(255,0,0));
-
-//Serial.println(color1[2]);
-  ledstrip.pulsate(curMillis, color1, color2, transitionTime);
   ledstrip.Update(curMillis);
 }
-
-// LED STRIPS FUNCTIONS
-
-
 
