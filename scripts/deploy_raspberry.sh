@@ -16,12 +16,12 @@ deploy() {
     host=$2
 
     echo "${Y}* Deploying local code to RaspberryPi $user@$host${RESET}"
-    ping -q -c1 $host &> /dev/null #&> /dev/null hide the output of the ping command, including errors.
+    ping -q -c1 $host &> /dev/null # &> /dev/null hide the output of the ping command, including errors.
     if [ $? -eq 0 ]; then
         #ping is successful
         echo "${G}* RaspberryPi $host is reachable${RESET}"
         echo "${Y}** Deleting remote code and deploying local code to RaspberryPi: $user@$host${RESET}"
-        ssh $user@$host "rm -rf ~/arbreole/src && rm -rf ~/arbreole/config"
+        ssh $user@$host "rm -rf ~/arbreole/src && rm -rf ~/arbreole/config" < /dev/null # added "< /dev/null" so that the script goes to next file line
         scp -p -r ./client $user@$host:~/arbreole/src
         scp -p -r ./config $user@$host:~/arbreole/config
         echo "${G}*** SUCCESS: $host was deployed for user $user***${RESET}"
