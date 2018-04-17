@@ -30,10 +30,22 @@ class LedStrip
   byte color1[3];
   byte color2[3];
 
+  // Pulse 2
+  int T1;
+  int T2;
+
   // Variables useful in handling each behaviour
   unsigned long previousMillis = 0;   // store last time the strip was updated
   int numberOfSteps;
   int modeStep;
+
+  // Pulse 2
+  int step1;
+  int step2;
+  int n_steps1;
+  int n_steps2;
+  int phase;
+  int step;
 
   boolean needsUpdate = false; // set to true when the colors change
 
@@ -54,20 +66,35 @@ class LedStrip
 //    R = (numberOfSteps * log10(2))/(log10(255));
   }
 
-  void Begin()
-  {
+  void Begin() {
     strip.begin();
     strip.show();
   }
 
+  void Update(unsigned long currentMillis) {
+    if (activatedMode == 1) {
+      Pulse(currentMillis);
+    }
+
+    if (activatedMode == 2) {
+      Pulse2(currentMillis);
+    }
+
+    if (needsUpdate) {
+      strip.show();
+      needsUpdate = false;
+    }
+  }
+
   void TurnOff() {
+    Serial.println("Here in the function TurnOff");
     activatedMode = 0;
     setUniformColor(0);
     needsUpdate = true;
   }
 
-  void UpdateState(int mode, byte c1[], byte c2[], int d) {
-    Serial.println("Here in the function UpdateState");
+  void ActivatePulse(int mode, byte c1[], byte c2[], int d) {
+    Serial.println("Here in the function ActivatePulse");
     activatedMode = mode;
 
     int i;
@@ -78,29 +105,28 @@ class LedStrip
     duration = d;
 
     // Reset variables
-    numberOfSteps = duration / updateIntervalTime;
+    numberOfSteps = duration / updateIntervalTime; // steps from color 1 to 2
     modeStep = 0;
   }
 
-  void Update(unsigned long currentMillis)
-  {
-    if (activatedMode == 1) {
-      Pulse(currentMillis);
-    }
+  void ActivatePulse2(int mode, byte c1[], byte c2[], int d1, int d2) {
+    Serial.println("Here in the function ActivatePulse 2");
+    activatedMode = mode;
 
-    if (needsUpdate) {
-      strip.show();
-      needsUpdate = false;
-    }
-  }
-
-  void setUniformColor(uint32_t c) {
     int i;
-    
-    for (i=0; i < strip.numPixels(); i++) {
-        strip.setPixelColor(i, c);
+    for (i = 0; i < 3; ++i) {
+      color1[i] = c1[i];
+      color2[i] = c2[i];
     }
-    needsUpdate = true;
+
+    T1 = d1;
+    T2 = d2;
+
+    // Reset variables
+    n_steps1 = T1 / updateIntervalTime; // steps from color 1 to 2
+    n_steps2 = T2 / updateIntervalTime; // steps from color 2 to 1
+    step = 0;
+    phase = 1;
   }
 
   void Pulse(unsigned long currentMillis) {
@@ -146,6 +172,60 @@ class LedStrip
     }
   }
 
+  void Pulse2(unsigned long currentMillis) {
+    if ((currentMillis - previousMillis) >= updateIntervalTime) {
+       previousMillis = millis();
+       setPulseColors2();
+    }
+  }
+
+  void setPulseColors2() {
+    if (phase == 1) {
+      step1++;
+
+      int rDiff = color2[0]-color1[0];
+      int gDiff = color2[1]-color1[1];
+      int bDiff = color2[2]-color1[2];
+
+      float rVariation = (float)rDiff / (float)n_steps1;
+      float gVariation = (float)gDiff / (float)n_steps1;
+      float bVariation = (float)bDiff / (float)n_steps1;
+
+      byte newRed = color1[0] + step1 * rVariation;
+      byte newGreen = color1[1] + step1 * gVariation;
+      byte newBlue = color1[2] + step1 * bVariation;
+
+      setUniformColor(Color(newRed,newGreen,newBlue));
+
+      if (step1 >= n_steps1) {
+        phase = 2;
+        step1 = 0;
+      }
+    }
+    if (phase == 2) {
+      step2++;
+
+      int rDiff = color1[0]-color2[0];
+      int gDiff = color1[1]-color2[1];
+      int bDiff = color1[2]-color2[2];
+
+      float rVariation = (float)rDiff / (float)n_steps2;
+      float gVariation = (float)gDiff / (float)n_steps2;
+      float bVariation = (float)bDiff / (float)n_steps2;
+
+      byte newRed = color2[0] + step2 * rVariation;
+      byte newGreen = color2[1] + step2 * gVariation;
+      byte newBlue = color2[2] + step2 * bVariation;
+
+      setUniformColor(Color(newRed,newGreen,newBlue));
+
+      if (step2 >= n_steps2) {
+        phase = 1;
+        step2 = 0;
+      }
+    }
+  }
+
   int sign(int x) {
     return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
   }
@@ -159,6 +239,15 @@ class LedStrip
     c <<= 8;
     c |= b;
     return c;
+  }
+
+  void setUniformColor(uint32_t c) {
+    int i;
+
+    for (i=0; i < strip.numPixels(); i++) {
+        strip.setPixelColor(i, c);
+    }
+    needsUpdate = true;
   }
 };
 
@@ -242,20 +331,28 @@ void setStateFromData() {
 
     if (strcmp(arr[0], "L") == 0) {
       Serial.println("Coucou le led strip");
-      if (strcmp(arr[1], "1") == 0) {
-        Serial.println(arr[1]);
-        Serial.println("Coucou le mode 1");
-        byte color1[3] = {atoi(arr[2]),atoi(arr[3]),atoi(arr[4])};
-        byte color2[3] = {atoi(arr[5]),atoi(arr[6]),atoi(arr[7])};
-        int duration = atoi(arr[8]);
-        ledstrip.UpdateState(atoi(arr[1]), color1, color2, duration);
-      }
-
       if (strcmp(arr[1], "0") == 0) {
-        Serial.println("coucou le mode 0");
+        Serial.println("Coucou le mode 0");
         ledstrip.TurnOff();
       }
 
+      if (strcmp(arr[1], "1") == 0) {
+        Serial.println("Coucou le mode 1");
+        byte color1[3] = {atoi(arr[2]),atoi(arr[3]),atoi(arr[4])};
+        byte color2[3] = {atoi(arr[5]),atoi(arr[6]),atoi(arr[7])};
+        int T = atoi(arr[8]);
+
+        ledstrip.ActivatePulse(atoi(arr[1]), color1, color2, T);
+      }
+
+      if (strcmp(arr[1], "2") == 0) {
+        Serial.println("Coucou le mode 2");
+        byte color1[3] = {atoi(arr[2]),atoi(arr[3]),atoi(arr[4])};
+        byte color2[3] = {atoi(arr[5]),atoi(arr[6]),atoi(arr[7])};
+        int T1 = atoi(arr[8]);
+        int T2 = atoi(arr[9]);
+        ledstrip.ActivatePulse2(atoi(arr[1]), color1, color2, T1, T2);
+      }
     }
   }
 }
