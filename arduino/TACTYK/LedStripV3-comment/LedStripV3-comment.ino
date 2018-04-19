@@ -21,6 +21,17 @@ ohserialstream cout(Serial);
 #include <avr/power.h>
 #endif
 
+/////////////////////////////////////////////
+
+// SENSOR
+#include <Arbreole_Sensor.h>
+Arbreole_Sensor sensor = Arbreole_Sensor(13,54,0); // ledPin = 13; sensorPin = 54 (Analog IN 0 = 54 + 0); calibratingTime = 0
+
+
+/////////////////////////////////////////////
+
+
+
 //! @jean Faire une classe pour ces données.
 //! @jean genre class Input
 // SERIAL VARIABLES
@@ -403,6 +414,7 @@ LedStrip ledstrip(numberOfLeds, dataPin, clockPin, refreshTime);
 
 void setup() {
   Serial.begin(57600);
+  Serial.println("<Arduino is ready>");
 
   // LED strip
 #if defined(__AVR_ATtiny85__) && (F_CPU == 16000000L)
@@ -410,9 +422,9 @@ void setup() {
 #endif
 
   ledstrip.Begin();
+  sensor.Begin();
 
   // tell the PC we are ready
-  Serial.println("<Arduino is ready>");
 }
 
 
@@ -425,6 +437,8 @@ void loop() {
   getDataFromRpi();
   handleInputData();
   ledstrip.Update(curMillis);
+
+  sensor.Update();
 }
 
 //=============
