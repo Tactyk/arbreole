@@ -15,12 +15,13 @@ def init_database():
     for color in colors:
         db.insert(color)
 
-    global_state = {
-        'id': 'global_state',
+    global_status = {
+        'id': 'global_status',
         'status': 'INACTIVE',
+        'phase': 'P0',
     }
 
-    db.insert(global_state)
+    db.insert(global_status)
 
 
 def init_client_state(hostname):
@@ -36,8 +37,10 @@ def init_client_state(hostname):
 
 def get_global_status():
     query = Query()
+    global_status = db.search(query.id == 'global_status')
 
-    return db.search(query.id == 'global_status')
+    print("GLOBAL STATUS", global_status)
+    return global_status[0]['status']
 
 
 def get_color_by_event_for_phase(event, phase):
@@ -71,13 +74,17 @@ def get_colors_by_phase(phaseId):
 
     return result[0]
 
+
 def get_all():
     return db.all()
 
 
-def upsert(msg, id):
+def update(msg, id):
     module = Query()
     db.upsert(msg, module.id == id)
+
+    module = Query()
+    return db.search(module.id == id)
 
 
 def reinit_phase_colors(phaseId, status):

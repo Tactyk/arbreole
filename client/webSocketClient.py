@@ -24,7 +24,10 @@ serial_simulation = True
 
 dbHandler.initialize_database()
 dbHandler.initialize_state()
-
+dbHandler.initialize_colors()
+dbHandler.initialize_functions()
+res = dbHandler.get_led_function_by_event_for_phase('INACTIVE', 'P0')
+print(res)
 #=========================
 #  code to ensure a clean exit
 
@@ -80,7 +83,7 @@ def handle_serial_data(data):
     print("DATA:", data)
     state = transform_data_to_state(data)
     newState = update_state(state)
-    analyseStateAndTriggerEvent(newState)
+    analyse_state_and_trigger_event(newState)
 
 
 def pre_update():
@@ -89,20 +92,16 @@ def pre_update():
             print("Exécution de la fonction %s." % func.__name__)
             print("ARG0", args[0])
 
-            res = dbHandler.find_state_by_id(hostname)
+            res = dbHandler.get_state()
             currentTime = time.time()
 
             msg = {
-                'id': hostname,
+                'id': dbHandler.STATE_KEY,
                 'time': currentTime,
-                'state': args[0]
+                'state': args[0],
+                'previousTime': res['time'],
+                'previousState': res['state'],
             }
-
-            if (len(res) == 0):
-                msg['initialTime'] = currentTime
-                msg['previousState'] = 'INACTIVE'
-            else:
-                msg['previousState'] = res[0]['state']
 
             response = func(msg, **kwargs)
             print("Post-traitement.")
@@ -127,10 +126,10 @@ def transform_data_to_state(data):
     if data == 0:
         return 'INACTIVE'
 
-def analyseStateAndTriggerEvent(state):
+def analyse_state_and_trigger_event(state):
     print('analyse STATE', state)
     state = state[0]
-    time = float(state['time']) - float(state['initialTime'])
+    time = float(state['time']) - float(state['previousTime'])
 
     if state['state'] == 'ACTIVE':
         if (time > 5):

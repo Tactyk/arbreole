@@ -1,0 +1,8 @@
+{
+    "id": "hostname",
+    "type": "rpi_client",
+    "event": "CONNECTED / ACTIVE_0 / ACTIVE_1 / ACTIVE_5 / INACTIVE",
+    "state": "CONNECTED / ACTIVE_0 / ACTIVE_1 / ACTIVE_5",
+    "previousState":
+    "time": "time.time()"
+}

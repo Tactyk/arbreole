@@ -4,6 +4,7 @@ import tornado.websocket
 import services.dbHandler as database
 
 database.init_database()
+debug = True
 
 clients = []
 
@@ -24,16 +25,16 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         global database
         global_status = database.get_global_status()
-        if global_status == 'INACTIVE':
+        if global_status == 'INACTIVE' and debug == False:
             print('Arbreole is inactive -> Ignoring message: ', message)
             return
 
         message_decoded = json.loads(message)
+
         print('Receiving from client: %s' % message_decoded)
         if 'type' in message_decoded:
             if 'rpi_client' == message_decoded['type']:
                 update_table(message_decoded)
-                print("DB STATE", database.get_all())
             if 'interface' == message_decoded['type']:
                 self.send_all("command", True, message_decoded['message'])
 
@@ -68,9 +69,8 @@ def pre_update():
 def update_table(msg):
     msg['time'] = time.time()
     global database
-    database.upsert(msg, msg['id'])
+    database.update(msg, msg['id'])
 
 
 def analyse_db():
-    results = database.get_all()
-    print('post Request::DB STATE', results)
+    print('post Request::DB STATE ...')
