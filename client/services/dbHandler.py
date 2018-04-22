@@ -15,12 +15,25 @@ STATE_KEY = 'state'
 def initialize_database():
     global db
     db = TinyDB('client.json')
+    global serial_events
+    serial_events = TinyDB('serial_signals.json')
     db.purge_tables()
+    serial_events.purge_tables()
 
 
 def initialize_colors():
     for functionsByPhase in functionsByPhases:
             db.insert(functionsByPhase)
+
+
+def add_serial_signal(state):
+
+    serial_signal = {
+        'state': state,
+        'time': time.time(),
+    }
+
+    serial_events.insert(serial_signal)
 
 
 def initialize_functions():
@@ -49,6 +62,47 @@ def get_state():
     return state[0]
 
 
+def extract_time(json):
+    try:
+        # Also convert to int since update_time will be string.  When comparing
+        # strings, "10" is smaller than "2".
+        print("JSON TIME", json['time'])
+        return int(json['time'])
+    except KeyError:
+        return 0
+
+
+def get_last_signals(time, current_time):
+    signal = Query()
+    print("SEARCHING FOR SIGNAL WITH TIME >=", current_time - time - 1)
+    signals = serial_events.search(signal.time >= (current_time - time - 1))
+
+    signals_before = []
+    signals_after = []
+
+    for signal in signals:
+        if signal['time'] <= (current_time - time):
+            signals_before.append(signal)
+        else:
+            signals_after.append(signal)
+
+    signals_before = sorted(signals_before, key=lambda i: i['time'], reverse=True)
+    signals_after = sorted(signals_after, key=lambda i: i['time'])
+
+    if len(signals_before) > 0:
+        signal_before = signals_before.pop(0)
+    else:
+        signal_before = []
+
+    if len(signals_before) > 0:
+        if time == "0":
+            return [signal_before]
+
+        signals_after.insert(0, signal_before)
+
+    return signals_after
+
+
 def update_state(msg):
     global hostname
     state = Query()
@@ -58,16 +112,17 @@ def update_state(msg):
     return db.search(state.id == STATE_KEY)
 
 
-def get_color_by_event_for_phase(event, phase):
+def get_colors_by_event_for_phase(event, phase, number):
     colors = get_colors_by_phase(phase)
     status = event.split('_')[0]
-    print("STATUS", status)
 
     print("colors colors before", colors[status])
-    if (len(colors[status]) == 0):
+    if len(colors[status]) == 0:
         reinit_phase_colors(phase, status)
 
-    value = colors[status].pop()
+    values = []
+    for i in range(0, number):
+        values.append(colors[status].pop())
 
     print("colors colors after", colors[status])
 
@@ -79,7 +134,7 @@ def get_color_by_event_for_phase(event, phase):
 
     print("RESULT COLOR PHASE", result)
 
-    return value
+    return values
 
 
 def get_colors_by_phase(phaseId):

@@ -1,0 +1,40 @@
+{
+  "ACTIVE":
+    [
+      {
+        "name": "ACTIVE_0",
+        "acceptance": 0,
+        "threshold": 100,
+        "time": 0,
+        "state": "ACTIVE",
+        "priority": 1
+      },
+      {
+        "name": "ACTIVE_1",
+        "threshold": 100,
+        "acceptance": 0,
+        "time": 1,
+        "state": "ACTIVE",
+        "priority": 10
+      },
+      {
+        "name": "ACTIVE_5",
+        "acceptance": 0,
+        "threshold": 100,
+        "time": 5,
+        "state": "ACTIVE",
+        "priority": 100
+      }
+    ],
+  "INACTIVE":
+    [
+      {
+        "name": "INACTIVE",
+        "threshold": 100,
+        "acceptance": 0,
+        "time": 5,
+        "state": "INACTIVE",
+        "priority": 10
+      }
+    ]
+}

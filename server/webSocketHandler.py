@@ -17,6 +17,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         else:
             client_hostname = 'interface'
         self.hostname = client_hostname
+
         database.init_client_state(client_hostname)
         print('New client connection with hostname: ' + client_hostname)
         self.send_all('new_connection')
@@ -25,7 +26,7 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
     def on_message(self, message):
         global database
         global_status = database.get_global_status()
-        if global_status == 'INACTIVE' and debug == False:
+        if global_status == 'INACTIVE' and debug is False:
             print('Arbreole is inactive -> Ignoring message: ', message)
             return
 

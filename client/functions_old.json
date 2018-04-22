@@ -1,0 +1,400 @@
+[
+  {
+    "id": "functions-P0",
+    "INACTIVE": {
+      "L": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300]
+          }
+        }
+      ],
+      "S": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ]
+    },
+    "ACTIVE_0": {
+      "L": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ],
+      "S": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ]
+    },
+    "ACTIVE_5_N": {
+      "L": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ],
+      "S": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "functions-P1",
+    "INACTIVE": {
+      "L": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ],
+      "S": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "functions-P2",
+    "INACTIVE": {
+      "L": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ],
+      "S": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ]
+    },
+    "ACTIVE_0": {
+      "L": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ],
+      "S": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ]
+    },
+    "ACTIVE_5": {
+      "L": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ],
+      "S": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ]
+    },
+    "ACTIVE_5_N": {
+      "L": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ],
+      "S": [
+        {
+          "name": "kikoo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 3,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        },
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ]
+    }
+  },
+  {
+    "id": "functions-TRANSITIONS",
+    "PO": {
+      "P1": [
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ]
+    },
+    "P1": {
+      "P0": [
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ],
+      "P2": [
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ]
+    },
+    "P2": {
+      "P1": [
+        {
+          "name": "yoyo",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [300,200,100]
+          }
+        }
+      ]
+    }
+  }
+]
