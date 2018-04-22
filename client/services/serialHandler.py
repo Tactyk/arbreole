@@ -1,6 +1,7 @@
 import serial
 import subprocess
 import time
+import services.dbHandler as dbHandler
 
 # global variables for module
 startMarker = 60
@@ -90,3 +91,14 @@ def waitForArduino():
 
         print(msg)
         print()
+
+
+def get_message_by_state(state):
+    func = dbHandler.get_led_function_by_event_for_phase(state['state'], state['phase'])
+    print("FUNCTION IS", func)
+    col = dbHandler.get_colors_by_event_for_phase(state['state'], state['phase'], func['colors'])
+    print("COLORS ARE", col)
+    colors = ','.join(col)
+    concatenated_string = '<L,' + func['name'] + ',' + colors + '>'
+
+    return concatenated_string

@@ -29,10 +29,6 @@ dbHandler.initialize_colors()
 dbHandler.initialize_functions()
 print("WAITING FOR ACTIVATION")
 
-res = dbHandler.get_led_function_by_event_for_phase('INACTIVE', 'P0')
-col = dbHandler.get_colors_by_event_for_phase('INACTIVE', 'P0', 2)
-print(res)
-print(col)
 #=========================
 #  code to ensure a clean exit
 
@@ -95,13 +91,22 @@ def handle_serial_data(data):
     print("DATA:", data)
     state = transform_data_to_state(data)
     current_time = time.time()
+
+    if state == 'TERMINATED':
+        current_state = dbHandler.get_state()
+        msg = serialHandler.get_message_by_state(current_state)
+        #serialHandler.write(msg)
+
     dbHandler.add_serial_signal(state, current_time)
     event = eventHandler.get_event_to_trigger(state, current_time)
 
     print("PRIOR EVENT", event)
     if event is not None:
         if eventHandler.should_trigger_event(event, current_time):
-            update_state(event, current_time)
+            new_state = update_state(event, current_time)
+            serverSender.send(new_state['state'])
+            msg = serialHandler.get_message_by_state(new_state)
+            #serialHandler.write(msg)
 
 
 def pre_update():
@@ -135,7 +140,7 @@ def update_state(msg, current_time):
 
     print("NEW STATE", new_state)
 
-    return new_state
+    return new_state[0]
 
 
 address = config['server']['ServerIP'] + ':' + config['server']['ServerPort']
