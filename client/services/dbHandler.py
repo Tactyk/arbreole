@@ -74,7 +74,6 @@ def extract_time(json):
 
 def get_last_signals(time, current_time):
     signal = Query()
-    print("SEARCHING FOR SIGNAL WITH TIME >=", current_time - time - 1)
     signals = serial_events.search(signal.time >= (current_time - time - 1))
 
     signals_before = []
@@ -95,9 +94,7 @@ def get_last_signals(time, current_time):
         signal_before = []
 
     if len(signals_before) > 0:
-        print("SIGNALS BEFORE >0")
         if time == 0:
-            print("time 0")
             return [signal_before]
 
         signals_after.insert(0, signal_before)
@@ -128,9 +125,6 @@ def get_colors_by_event_for_phase(event, phase, number):
 
     phase_query = Query()
     db.update(colors, phase_query.id == phase)
-
-    query = Query()
-    result = db.search(query.id == phase)
 
     return values
 

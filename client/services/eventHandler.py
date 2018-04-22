@@ -16,18 +16,69 @@ def get_event_to_trigger(state, current_time):
         if could_trigger_event(event, current_time):
             events_to_trigger.append(event)
 
-    print("EVENTS TO TRIGGER", events_to_trigger)
+    return get_prior_event(events_to_trigger)
 
-    # new_event = get_event_to_trigger(events_to_trigger)
-    #
-    # if should_trigger_event(new_event):
-    #     trigger_event()
-    #     update_state(new_event)
+
+def should_trigger_event(event, current_time):
+    state = dbHandler.get_state()
+
+    if event['name'] == 'ACTIVE_0':
+        if state['state'] == 'INACTIVE':
+            print('>>>>SHOULD TRIGGER ACTIVE_0 <<<<')
+            return True
+        else:
+            print('::::: IGNORING ACTIVE_0 ::::')
+            return False
+
+    if event['name'] == 'ACTIVE_1':
+        if state['state'] == 'ACTIVE_0':
+            print('>>>>SHOULD TRIGGER ACTIVE_1 <<<<')
+            return True
+        else:
+            print('::::: CANNOT HAVE ACTIVE_1 after state ::::', state['state'])
+            return False
+
+    if event['name'] == 'ACTIVE_5':
+        if state['state'] == 'ACTIVE_0':
+            print('>>>>TRIGGER ACTIVE_5 <<<<')
+            return True
+        if state['state'] == 'ACTIVE_1':
+            print('>>>>TRIGGER ACTIVE_5 after ACTIVE_1<<<<')
+            return True
+        if state['state'] == 'ACTIVE_5':
+            time = current_time - float(state['time'])
+            if time > 5:
+                print('>>>>RENEW TRIGGER ACTIVE_5<<<<')
+                return True
+        else:
+            print('::::: IGNORING ACTIVE_5 ::::')
+            return False
+
+    if event['name'] == 'INACTIVE':
+        if state['state'] != 'INACTIVE':
+            time = current_time - float(state['time'])
+            if time > 5:
+                print('>>>>TRIGGER INACTIVATION <<<<')
+                return True
+        return False
 
 
 def get_events_by_state(state):
 
     return events[state]
+
+
+def get_prior_event(events):
+    if len(events) == 0:
+        return None
+
+    prior_event = events[0]
+
+    for event in events:
+        if event['priority'] > prior_event['priority']:
+            prior_event = event
+
+    return prior_event
 
 
 def could_trigger_event(event, current_time):

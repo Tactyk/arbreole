@@ -96,32 +96,32 @@ def handle_serial_data(data):
     state = transform_data_to_state(data)
     current_time = time.time()
     dbHandler.add_serial_signal(state, current_time)
-    events = eventHandler.get_event_to_trigger(state, current_time)
+    event = eventHandler.get_event_to_trigger(state, current_time)
+
+    print("PRIOR EVENT", event)
+    if event is not None:
+        if eventHandler.should_trigger_event(event, current_time):
+            update_state(event, current_time)
 
 
 def pre_update():
     def decorated(func):
         def wrapper(*args, **kwargs):
             print("Exécution de la fonction %s." % func.__name__)
-            print("ARG0", args[0])
+            event = args[0]
+            current_time = args[1]
 
-            res = dbHandler.get_state()
-            currentTime = time.time()
-
+            state = dbHandler.get_state()
+            print("OLD STATE", state)
             msg = {
                 'id': dbHandler.STATE_KEY,
-                'time': currentTime,
-                'state': args[0],
-                'previousTime': res['time'],
-                'previousState': res['state'],
+                'time': current_time,
+                'state': event['name'],
+                'previousTime': state['time'],
+                'previousState': state['state'],
             }
 
-            if should_init_time(msg):
-                msg['time'] = currentTime
-                msg['previousTime'] = currentTime
-
-            # si il est inactif depuis plus de 5 sec, reinitialisation du temps
-            response = func(msg, **kwargs)
+            response = func(msg, current_time, **kwargs)
             print("Post-traitement.")
             return response
         return wrapper
@@ -129,70 +129,13 @@ def pre_update():
 
 
 @pre_update()
-def update_state(msg):
+def update_state(msg, current_time):
 
-    print('UPDATE_STATE_MSG', msg)
     new_state = dbHandler.update_state(msg)
 
-    print('STATE UPDATED', new_state)
+    print("NEW STATE", new_state)
 
-    return new_state@pre_update()
-
-
-def should_init_time(state):
-    return is_freshly_activate(state) or is_freshly_inactivate(state)
-
-
-def is_freshly_activate(state):
-    if state['previousState'] == 'INACTIVE'and state['state'] == 'ACTIVE':
-        return True
-    else:
-        return False
-
-
-def is_freshly_inactivate(state):
-    if state['previousState'] == 'ACTIVE'and state['state'] == 'INACTIVE':
-        return True
-    else:
-        return False
-
-
-def is_inactivated(state):
-    time = float(state['time']) - float(state['previousTime'])
-    if state['state'] == 'INACTIVE'and state['previousState'] == 'INACTIVE' and time > 5:
-        return True
-    else:
-        return False
-
-
-def is_strongly_activated(state):
-    time = float(state['time']) - float(state['previousTime'])
-    if state['state'] == 'ACTIVE'and state['previousState'] == 'ACTIVE' and time > 5:
-        return True
-    else:
-        return False
-
-
-
-def analyse_state_and_trigger_event(state):
-    print('analyse STATE', state)
-    state = state[0]
-    time = float(state['time']) - float(state['previousTime'])
-
-    if state['state'] == 'ACTIVE':
-        if (time > 5):
-            serverSender.send('ACTIVE_5')
-            print('MODULE ACTIVATION >5s :::', time)
-
-        elif (time > 1):
-            serverSender.send('ACTIVE_1')
-            print('MODULE ACTIVATION >1s :::', time)
-        elif (time == 0):
-            serverSender.send('ACTIVE_0')
-            print('MODULE ACTIVATED :::', time)
-    if state['state'] == 'INACTIVE':
-        serverSender.send('INACTIVE_0')
-        print('MODULE INACTIVE:::', time)
+    return new_state
 
 
 address = config['server']['ServerIP'] + ':' + config['server']['ServerPort']
