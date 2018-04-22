@@ -11,7 +11,7 @@ def start_simulation():
     time.sleep(0.1)
     webSocketClient.handle_serial_data(1)
     time.sleep(0.1)
-    webSocketClient.handle_serial_data(1)
+    webSocketClient.handle_serial_data(0)
     time.sleep(0.1)
     webSocketClient.handle_serial_data(1)
     time.sleep(0.1)

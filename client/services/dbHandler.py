@@ -26,11 +26,11 @@ def initialize_colors():
             db.insert(functionsByPhase)
 
 
-def add_serial_signal(state):
+def add_serial_signal(state, current_time):
 
     serial_signal = {
         'state': state,
-        'time': time.time(),
+        'time': current_time,
     }
 
     serial_events.insert(serial_signal)
@@ -81,7 +81,7 @@ def get_last_signals(time, current_time):
     signals_after = []
 
     for signal in signals:
-        if signal['time'] <= (current_time - time):
+        if signal['time'] < (current_time - time):
             signals_before.append(signal)
         else:
             signals_after.append(signal)
@@ -95,7 +95,9 @@ def get_last_signals(time, current_time):
         signal_before = []
 
     if len(signals_before) > 0:
-        if time == "0":
+        print("SIGNALS BEFORE >0")
+        if time == 0:
+            print("time 0")
             return [signal_before]
 
         signals_after.insert(0, signal_before)
@@ -124,15 +126,11 @@ def get_colors_by_event_for_phase(event, phase, number):
     for i in range(0, number):
         values.append(colors[status].pop())
 
-    print("colors colors after", colors[status])
-
     phase_query = Query()
     db.update(colors, phase_query.id == phase)
 
     query = Query()
     result = db.search(query.id == phase)
-
-    print("RESULT COLOR PHASE", result)
 
     return values
 

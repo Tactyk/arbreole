@@ -6,7 +6,7 @@
         "acceptance": 0,
         "threshold": 100,
         "time": 0,
-        "state": "ACTIVE",
+        "state": "INACTIVE",
         "priority": 1
       },
       {

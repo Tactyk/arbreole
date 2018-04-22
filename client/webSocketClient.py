@@ -94,9 +94,9 @@ def handle_serial_data(data):
     print("### NEW SERIAL DATA ###")
     print("DATA:", data)
     state = transform_data_to_state(data)
-    dbHandler.add_serial_signal(state)
-
-    events = eventHandler.get_event_to_trigger(state)
+    current_time = time.time()
+    dbHandler.add_serial_signal(state, current_time)
+    events = eventHandler.get_event_to_trigger(state, current_time)
 
 
 def pre_update():

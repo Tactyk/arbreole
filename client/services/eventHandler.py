@@ -6,13 +6,12 @@ import services.dbHandler as dbHandler
 events = json.load(open('events.json'))
 
 
-def get_event_to_trigger(state):
+def get_event_to_trigger(state, current_time):
     print("----------------------------------------")
     events = get_events_by_state(state)
 
     events_to_trigger = []
 
-    current_time = time.time()
     for event in events:
         if could_trigger_event(event, current_time):
             events_to_trigger.append(event)
@@ -27,20 +26,21 @@ def get_event_to_trigger(state):
 
 
 def get_events_by_state(state):
+
     return events[state]
 
 
 def could_trigger_event(event, current_time):
 
     signals = dbHandler.get_last_signals(event['time'], current_time)
-    print("Check event", event['name'])
-    print("current time", current_time)
 
     signals_number = len(signals)
 
     if signals_number == 0:
-        print("4 - NO SIGNALS ...")
-        return False
+        if event['name'] == 'ACTIVE_0':
+            return True
+        else:
+            return False
 
     good_state_number = 0
     acceptance = False
@@ -49,7 +49,6 @@ def could_trigger_event(event, current_time):
     counter = 0
 
     if (current_time - event['time']) - signals[0]['time'] < 0:
-        print("IGNORING SIGNAL")
         return False
 
     for signal in signals:
@@ -57,6 +56,7 @@ def could_trigger_event(event, current_time):
             good_state_number = good_state_number + 1
             var1 = 1 - ((signals_number - counter) / signals_number)
             var2 = float(event['acceptance'])
+
             if var1 >= var2:
                 acceptance = True
         counter = counter + 1
