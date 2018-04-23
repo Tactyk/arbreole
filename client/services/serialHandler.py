@@ -99,6 +99,6 @@ def get_message_by_state(state):
     col = dbHandler.get_colors_by_event_for_phase(state['state'], state['phase'], func['colors'])
     print("COLORS ARE", col)
     colors = ','.join(col)
-    concatenated_string = '<L,' + func['name'] + ',' + colors + '>'
+    concatenated_string = '<L,' + func['name'] + ',3' + ',' + colors + ',1000>'
 
     return concatenated_string

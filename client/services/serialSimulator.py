@@ -5,6 +5,8 @@ def start_simulation():
 
     # import insde function to avoid circular reference
     # First t=0
+    webSocketClient.handle_serial_data(0)
+    time.sleep(0.1)
     webSocketClient.handle_serial_data(1)
     time.sleep(0.1)
     webSocketClient.handle_serial_data(1)

@@ -1,6 +1,7 @@
 import json
 import os
 import time
+import random
 
 colorsByPhases = json.load(open('colors.json'))
 functionsByPhases = json.load(open('functions.json'))
@@ -150,7 +151,7 @@ def get_led_function_by_event_for_phase(event, phase):
 
     functions = get_led_functions_by_phase_and_event('L',event, phase)
 
-    return functions[0]
+    return random.choice(functions)
 
 
 def get_led_functions_by_phase_and_event(type, event, phaseId):
@@ -158,5 +159,6 @@ def get_led_functions_by_phase_and_event(type, event, phaseId):
     result = db.search(phase.id == 'functions-'+phaseId)
     functions_by_event = result[0]
 
+    print("FUNCTIONS BY EVENT", functions_by_event)
     return functions_by_event[event][type]
 

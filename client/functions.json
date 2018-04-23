@@ -11,11 +11,20 @@
           "durationsDefault": {
             "default": [1000]
           }
+        },
+        {
+          "name": "2",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [1000]
+          }
         }
       ],
       "S": [
         {
-          "name": "1",
+          "name": "2",
           "colors": 2,
           "repeat": 2,
           "durations": 3,
@@ -29,6 +38,15 @@
       "L": [
         {
           "name": "1",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [1000]
+          }
+        },
+        {
+          "name": "2",
           "colors": 2,
           "repeat": 2,
           "durations": 1,
@@ -53,6 +71,15 @@
       "L": [
         {
           "name": "1",
+          "colors": 2,
+          "repeat": 2,
+          "durations": 1,
+          "durationsDefault": {
+            "default": [1000]
+          }
+        },
+        {
+          "name": "2",
           "colors": 2,
           "repeat": 2,
           "durations": 1,

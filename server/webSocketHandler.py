@@ -25,10 +25,6 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         global database
-        global_status = database.get_global_status()
-        if global_status == 'INACTIVE' and debug is False:
-            print('Arbreole is inactive -> Ignoring message: ', message)
-            return
 
         message_decoded = json.loads(message)
 
@@ -70,7 +66,8 @@ def pre_update():
 def update_table(msg):
     msg['time'] = time.time()
     global database
-    database.update(msg, msg['id'])
+    new_state = database.update(msg, msg['id'])
+    print("NEW STATE", new_state)
 
 
 def analyse_db():

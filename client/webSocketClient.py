@@ -21,9 +21,10 @@ config.read('../config/config.ini')
 
 connect_to_arduino = True
 client_simulation = False
-serial_simulation = True
+serial_simulation = False
 
 dbHandler.initialize_database()
+dbHandler.initialize_state()
 dbHandler.initialize_state()
 dbHandler.initialize_colors()
 dbHandler.initialize_functions()
@@ -95,7 +96,8 @@ def handle_serial_data(data):
     if state == 'TERMINATED':
         current_state = dbHandler.get_state()
         msg = serialHandler.get_message_by_state(current_state)
-        #serialHandler.write(msg)
+        print("SERIAL MESSAGE:", msg)
+        serialHandler.write(msg)
 
     dbHandler.add_serial_signal(state, current_time)
     event = eventHandler.get_event_to_trigger(state, current_time)
@@ -106,7 +108,8 @@ def handle_serial_data(data):
             new_state = update_state(event, current_time)
             serverSender.send(new_state['state'])
             msg = serialHandler.get_message_by_state(new_state)
-            #serialHandler.write(msg)
+            print("SERIAL MESSAGE:", msg)
+            serialHandler.write(msg)
 
 
 def pre_update():

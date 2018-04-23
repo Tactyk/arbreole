@@ -10,14 +10,6 @@
         "priority": 1
       },
       {
-        "name": "ACTIVE_1",
-        "threshold": 100,
-        "acceptance": 0,
-        "time": 1,
-        "state": "ACTIVE",
-        "priority": 10
-      },
-      {
         "name": "ACTIVE_5",
         "acceptance": 0,
         "threshold": 100,
