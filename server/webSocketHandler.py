@@ -1,11 +1,13 @@
 import json
 import time
 import tornado.websocket
-from tinydb import TinyDB, Query
+import services.dbHandler as database
 
-db = TinyDB('db.json')
-db.purge_tables()
+database.init_database()
+debug = True
+
 clients = []
+
 
 # Socket Handler
 class WebSocketHandler(tornado.websocket.WebSocketHandler):
@@ -15,17 +17,21 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
         else:
             client_hostname = 'interface'
         self.hostname = client_hostname
+
+        database.init_client_state(client_hostname)
         print('New client connection with hostname: ' + client_hostname)
         self.send_all('new_connection')
         clients.append(self)
 
     def on_message(self, message):
+        global database
+
         message_decoded = json.loads(message)
+
         print('Receiving from client: %s' % message_decoded)
         if 'type' in message_decoded:
             if 'rpi_client' == message_decoded['type']:
                 update_table(message_decoded)
-                print("DB STATE", db.all())
             if 'interface' == message_decoded['type']:
                 self.send_all("command", True, message_decoded['message'])
 
@@ -43,12 +49,13 @@ class WebSocketHandler(tornado.websocket.WebSocketHandler):
                     'type': type,
                 })
 
+
 def pre_update():
     def decorated(func):
         def wrapper(*args, **kwargs):
             print("Exécution de la fonction %s." % func.__name__)
             response = func(*args, **kwargs)
-            print ("Post-traitement.")
+            print("Post-traitement.")
             analyse_db()
             return response
         return wrapper
@@ -57,11 +64,11 @@ def pre_update():
 
 @pre_update()
 def update_table(msg):
-    Rpi = Query()
     msg['time'] = time.time()
-    db.upsert(msg, Rpi.id == msg['id'])
+    global database
+    new_state = database.update(msg, msg['id'])
+    print("NEW STATE", new_state)
 
 
 def analyse_db():
-    results = db.all()
-    print('post Request::DB STATE', results)
+    print('post Request::DB STATE ...')

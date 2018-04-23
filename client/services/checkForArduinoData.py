@@ -1,6 +1,5 @@
 import threading
 import time
-
 import services.serialHandler as serialHandler
 
 # ======================
@@ -10,7 +9,6 @@ import services.serialHandler as serialHandler
 inputData = ""
 threadRun = True
 checkDelay = 2  # seconds
-
 
 # ======================
 
