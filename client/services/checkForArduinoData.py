@@ -1,6 +1,7 @@
 import threading
 import time
 import services.serialHandler as serialHandler
+import services.dataHandler as dataHandler
 
 # ======================
 
@@ -8,7 +9,7 @@ import services.serialHandler as serialHandler
 
 inputData = ""
 threadRun = True
-checkDelay = 2  # seconds
+checkDelay = 0.01  # seconds
 
 # ======================
 
@@ -17,6 +18,7 @@ def checkForData():
     print("Starting to Listen")
     while threadRun == True:
         dataInput = serialHandler.recvFromArduino(0.1)
+        dataHandler.handle_serial_data(dataInput)
         print("DataInput {}".format(dataInput))
         if dataInput == "<<" or dataInput == ">>":
             dataInput = "nothing"

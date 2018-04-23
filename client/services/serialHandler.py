@@ -13,10 +13,11 @@ endMarker = 62
 def setupSerial():
     global ser
 
-    dev = subprocess.check_output('ls /dev/tty.usbmodem*', shell=True)
+    # dev = subprocess.check_output('ls /dev/tty.usbmodem*', shell=True)
+    dev = subprocess.check_output('ls /dev/ttyACM*', shell=True)
     print("Arduino Detected: " + dev.decode('utf-8').strip())
 
-    ser = serial.Serial(dev.decode('utf-8').strip(), 9600)
+    ser = serial.Serial(dev.decode('utf-8').strip(), 57600)
 
     waitForArduino()
 

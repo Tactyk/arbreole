@@ -90,7 +90,7 @@ In this project, we use **python3**. In order to install python3 packages, use t
   ```sh
   $ sudo apt-get update # Update packages
   $ sudo apt-get install python3-pip # Install pip3 and python3
-  $ pip3 install websocket-client pyserial # Install packages
+  $ pip3 install websocket-client pyserial tinydb # Install packages
   ```
 
   To communicate with the server, we will use websockets, with the **websocket-client** library.

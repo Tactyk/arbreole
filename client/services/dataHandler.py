@@ -16,9 +16,11 @@ serial_simulation = False
 
 
 def transform_data_to_state(data):
-    if data == 1:
+    if data == "1":
+        print("ACTIVE")
         return 'ACTIVE'
-    if data == 0:
+    if data == "0":
+        print("INACTIVE")
         return 'INACTIVE'
 
 
@@ -26,6 +28,8 @@ def handle_serial_data(data):
     print("### NEW SERIAL DATA ###")
     print("DATA:", data)
     state = transform_data_to_state(data)
+    if state is None:
+        return
     current_time = time.time()
 
     if state == 'TERMINATED':
