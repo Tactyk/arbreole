@@ -19,7 +19,11 @@ class Arbreole_Sensor
             m_pinSensor,
             m_sensorValue,
             m_sensorState,
-            m_calibratingTime;
+            m_calibratingTime,
+            m_updateInterval;
+        unsigned long
+            m_currentMillis,
+            m_previousMillis;
 };
 
 #endif

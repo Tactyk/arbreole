@@ -6,6 +6,9 @@ Arbreole_Sensor::Arbreole_Sensor(int pinLed, int pinSensor, int calibratingTime 
 	m_sensorValue = 0;
 	m_sensorState = LOW;
 	m_calibratingTime = calibratingTime;
+	m_currentMillis = 0;
+	m_previousMillis = 0;
+	m_updateInterval = 300;
 }
 
 void Arbreole_Sensor::Begin(){
@@ -22,19 +25,32 @@ void Arbreole_Sensor::Begin(){
 void Arbreole_Sensor::Update(){
 	m_sensorValue = digitalRead(m_pinSensor);
 
-    if (m_sensorValue == HIGH) {
-        digitalWrite(m_pinLed,HIGH);
+    m_currentMillis = millis();
 
-        if(m_sensorState==LOW){
+	if (m_currentMillis - m_previousMillis >= m_updateInterval) {
+	m_previousMillis = m_currentMillis;
+
+	    if (m_sensorValue == HIGH) {
+	        digitalWrite(m_pinLed,HIGH);
             Serial.println("Motion detected: <1>");
-            m_sensorState = HIGH;
-        }
-    } else {
-        digitalWrite(m_pinLed,LOW);
-
-        if(m_sensorState==HIGH){
+	    } else {
+            digitalWrite(m_pinLed,LOW);
             Serial.println("Motion ended: <0>");
-            m_sensorState=LOW;
-        }
-  }
+	    }
+	}
+//    if (m_sensorValue == HIGH) {
+//        digitalWrite(m_pinLed,HIGH);
+//
+//        if(m_sensorState==LOW){
+//            Serial.println("Motion detected: <1>");
+//            m_sensorState = HIGH;
+//        }
+//    } else {
+//        digitalWrite(m_pinLed,LOW);
+//
+//        if(m_sensorState==HIGH){
+//            Serial.println("Motion ended: <0>");
+//            m_sensorState=LOW;
+//        }
+//  }
 }
