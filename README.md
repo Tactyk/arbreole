@@ -154,6 +154,22 @@ you should see `Server connection opened` in your rPi terminal side and `New con
 
 Everything is now connected by websocket. Try to add a text in your web client, enter and see every logs in terminal/console.
 
+
+#### Connecting to the router
+
+* Plug the router antenna and turn on the TP-link router.
+* Wait a few minutes and connect your computer to the router WIFI:
+  * WifiId: `Arbreole`
+  * pwd: `tiepstieps`
+
+* The router dashboard is reachable with the address: http://tplinkwifi.net/ or http://192.168.0.1/
+  * The admin password is: `tieps`
+  * In the dashboard `basic` tab, you should see the number of connected client (wired and wireless).
+
+* To connect the raspberry pi to the router, follow this link: https://www.raspberrypi.org/documentation/configuration/wireless/wireless-cli.md
+
+
+
 #### Scripts
 
 You can find some useful scripts into ./scripts/ folder. To run it, **from your project root folder**, type `./scripts/{script-name}.sh`

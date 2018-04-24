@@ -31,6 +31,19 @@ Arbreole_Sensor sensor = Arbreole_Sensor(13,54,0); // ledPin = 13; sensorPin = 5
 /////////////////////////////////////////////
 
 
+// SPOT LIGHT
+// Define Pins
+#define RED 6
+#define GREEN 5
+#define BLUE 4
+
+byte spotLightColor[3] = {0, 0, 0}; // {R, G, B}
+int spotLightOnTime = 0;
+boolean spotIsOn = false;
+unsigned long previousSpotMillis = 0;
+// END SPOT LIGHT
+
+
 
 //! @jean Faire une classe pour ces données.
 //! @jean genre class Input
@@ -355,6 +368,24 @@ class LedStrip
     }
 };
 
+
+// SPOT LIGHT FUNCTIONS
+void updateSpot(unsigned long currentMillis) {
+  if (spotIsOn) {
+      analogWrite(RED, 255 - spotLightColor[0]);
+      analogWrite(GREEN, 255 - spotLightColor[1]);
+      analogWrite(BLUE, 255 - spotLightColor[2]); 
+    if ((currentMillis - previousSpotMillis) > spotLightOnTime) {
+        Serial.println("SHOULD TURN OFF SPOT");
+      spotIsOn = false;
+      analogWrite(RED, 255);
+      analogWrite(GREEN, 255);
+      analogWrite(BLUE, 255); 
+    }
+  } 
+}
+
+
 //! @jean Pas util de déclarer les variables numOfLeds, dataPin ect...
 //! Elles sont gardé en mémoire cache après et accessibles après.
 //! LedStrip ledstrip(12, 11, 12, 20) la doc du constructeur suffis à comprendre
@@ -380,6 +411,16 @@ void setup() {
   ledstrip.Begin();
   sensor.Begin();
 
+    // SPOT
+  pinMode(RED, OUTPUT);
+  pinMode(GREEN, OUTPUT);
+  pinMode(BLUE, OUTPUT);
+
+  digitalWrite(RED, HIGH);
+  digitalWrite(GREEN, HIGH);
+  digitalWrite(BLUE, HIGH);
+  // END SPOT
+
   // tell the PC we are ready
 }
 
@@ -393,6 +434,8 @@ void loop() {
   getDataFromRpi();
   handleInputData();
   ledstrip.Update(curMillis);
+
+  updateSpot(millis());
 
   sensor.Update();
 }
@@ -466,6 +509,19 @@ void handleInputData() {
         int T1 = atoi(inputData[9].c_str());
         int T2 = atoi(inputData[10].c_str());
         ledstrip.ActivatePulse(atoi(inputData[1].c_str()), totalPlays, color1, color2, T1, T2);
+      }
+    } else if (inputData[0] == "S") {
+      Serial.println("Coucou le SPOT");
+
+      if (inputData[1] == "1") {
+        Serial.println("Coucou le mode 1 du spot");
+
+        spotLightColor[0] = atoi(inputData[2].c_str());
+        spotLightColor[1] = atoi(inputData[3].c_str());
+        spotLightColor[2] = atoi(inputData[4].c_str());
+        spotLightOnTime = atoi(inputData[5].c_str());
+        spotIsOn = true;
+        previousSpotMillis = millis();
       }
     }
   }
