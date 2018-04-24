@@ -174,7 +174,6 @@ def get_led_functions_by_phase_and_event(type, event, phaseId):
     result = db.search(phase.id == 'functions-'+phaseId)
     functions_by_event = result[0]
 
-    print("FUNCTIONS BY EVENT", functions_by_event)
     return functions_by_event[event][type]
 
 
