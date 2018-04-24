@@ -33,12 +33,10 @@ def handle_serial_data(data):
         current_state = dbHandler.get_state()
         msg = serialHandler.get_message_by_state(current_state)
         print("SERIAL MESSAGE:", msg)
-        #serialHandler.write(msg)
+        serialHandler.write(msg)
     else:
         dbHandler.add_serial_signal(state, current_time)
         event = eventHandler.get_event_to_trigger(state, current_time)
-
-        print("PRIOR EVENT", event)
         if event is not None:
             if eventHandler.should_trigger_event(event, current_time):
                 new_state = update_state(event, current_time)
@@ -46,8 +44,8 @@ def handle_serial_data(data):
                 msg = serialHandler.get_message_by_state(new_state)
                 print("SERIAL MESSAGE:", msg)
                 spot_msg = '<S,1,226,122,1,1000>'
-                #serialHandler.write(msg)
-                #serialHandler.write(spot_msg)
+                serialHandler.write(msg)
+                serialHandler.write(spot_msg)
 
 
 def pre_update():
@@ -58,7 +56,6 @@ def pre_update():
             current_time = args[1]
 
             state = dbHandler.get_state()
-            print("OLD STATE", state)
             msg = {
                 'id': dbHandler.STATE_KEY,
                 'time': current_time,
@@ -78,7 +75,5 @@ def pre_update():
 def update_state(msg, current_time):
 
     new_state = dbHandler.update_state(msg)
-
-    print("NEW STATE", new_state)
 
     return new_state[0]
