@@ -35,6 +35,8 @@ def add_serial_signal(state, current_time):
     }
 
     serial_events.insert(serial_signal)
+    query = Query()
+    serial_events.remove(query.time < current_time - 10)
 
 
 def initialize_functions():
@@ -119,32 +121,45 @@ def get_colors_by_event_for_phase(event, phase, number):
     print("colors colors before", colors[status])
     if len(colors[status]) == 0:
         reinit_phase_colors(phase, status)
+        colors = get_colors_by_phase(phase)
+
+        status = event.split('_')[0]
 
     values = []
     for i in range(0, number):
         values.append(colors[status].pop())
 
+    print("colors colors after", colors[status])
+
     phase_query = Query()
-    db.update(colors, phase_query.id == phase)
+    db.update(colors, phase_query.id == 'colors-' + phase)
 
     return values
 
 
 def get_colors_by_phase(phaseId):
     phase = Query()
-    result = db.search(phase.id == 'colors-'+phaseId)
+    result = db.search(phase.id == 'colors-' + phaseId)
 
     return result[0]
 
 
 def reinit_phase_colors(phaseId, status):
     dbColors = get_colors_by_phase(phaseId)
+    print("DBCOLORs", dbColors)
 
     for colorsByPhase in colorsByPhases:
-        if colorsByPhase['id'] == phaseId:
-            dbColors[status] = colorsByPhases[status]
+        if colorsByPhase['id'] == 'colors-' + phaseId:
+            print(colorsByPhase)
+
+            dbColors[status] = colorsByPhase[status]
             phase_query = Query()
-            db.update(dbColors, phase_query.id == id)
+            db.update(dbColors, phase_query.id == colorsByPhase['id'])
+            print(colorsByPhase['id'])
+
+            yoyo = Query()
+            kioo = db.search(yoyo.id == colorsByPhase['id'])
+            print(kioo)
 
 
 def get_led_function_by_event_for_phase(event, phase):
@@ -161,4 +176,5 @@ def get_led_functions_by_phase_and_event(type, event, phaseId):
 
     print("FUNCTIONS BY EVENT", functions_by_event)
     return functions_by_event[event][type]
+
 
