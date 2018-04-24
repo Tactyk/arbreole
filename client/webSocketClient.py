@@ -21,7 +21,7 @@ config.read('../config/config.ini')
 
 connect_to_arduino = True
 client_simulation = False
-serial_simulation = False
+serial_simulation = True
 
 dbHandler.initialize_database()
 dbHandler.initialize_state()
@@ -77,6 +77,7 @@ def on_open(ws):
         clientSimulator.start_simulation()
 
     if serial_simulation is True:
+        print("### OPEN ###")
         start_simulation()
 
 
