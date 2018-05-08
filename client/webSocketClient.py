@@ -21,7 +21,7 @@ config.read('../config/config.ini')
 
 connect_to_arduino = True
 client_simulation = False
-serial_simulation = True
+serial_simulation = False
 
 dbHandler.initialize_database()
 dbHandler.initialize_state()
