@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <iterator>
+#include <iostream>
+#include <map>
 
 using namespace std;
 
@@ -25,11 +27,9 @@ ohserialstream cout(Serial);
 
 // SENSOR
 #include <Arbreole_Sensor.h>
-Arbreole_Sensor sensor = Arbreole_Sensor(13,54,0); // ledPin = 13; sensorPin = 54 (Analog IN 0 = 54 + 0); calibratingTime = 0
-
+Arbreole_Sensor sensor = Arbreole_Sensor(13, 54, 0); // ledPin = 13; sensorPin = 54 (Analog IN 0 = 54 + 0); calibratingTime = 0
 
 /////////////////////////////////////////////
-
 
 // SPOT LIGHT
 // Define Pins
@@ -43,11 +43,17 @@ boolean spotIsOn = false;
 unsigned long previousSpotMillis = 0;
 // END SPOT LIGHT
 
-
-
 //! @jean Faire une classe pour ces données.
 //! @jean genre class Input
 // SERIAL VARIABLES
+// struct SerialData
+//{
+//  bufferSize = 40;
+//  inputBuffer[buffSize] = nullptr;
+//}
+// SerialData.bufferSize;
+//
+
 const byte buffSize = 40;
 char inputBuffer[buffSize];
 const char startMarker = '<';
@@ -55,351 +61,265 @@ const char endMarker = '>';
 byte bytesRecvd = 0;
 boolean readInProgress = false;
 boolean newDataFromRpi = false;
-//
 
-//! @jean Si tu veux vraiment un design clean et ne pas faire grossir ta classe
-//! LedStrip à chaque nouveau comportement je ferais un pattern stratégie.
-//! Traduction une classe mère de mode Mode et des classes filles genre Pulse1, Pulse2 ect.
-//! Ledstrip a un pointeur de Mode et à chaque fois que tu active un nouvea mode,
-//! tu fais delete m_mode; et m_mode = new Pulse1() du genre.
-
-// class Mode
-// {
-// public:
-//
-//     virtual update(unsigned long currentMillis) = 0;
-// }
-//
-// class Pulse1 : public Mode
-// {
-// public:
-//
-//     Pulse1(...);
-//
-//     udpate(unsigned long currentMillis)
-//     {
-//         ... équivalent de ta méthode Pulse
-//     }
-//
-//     ~Pulse1();
-//
-// private:
-//
-//     //data
-// }
-//
-// class LedStrip
-// {
-// public:
-//
-//     LedStrip();
-//
-//     ~LedStrip()
-//     {
-//         if (m_mode)
-//         {
-//             delete m_mode;
-//         }
-//     }
-//
-//     activatePulse1(...)
-//     {
-//         if (m_current_mode != 0)
-//         {
-//             delete m_mode
-//         }
-//
-//         m_mode = new Pulse1(....);
-//     }
-//
-// private:
-//
-//     int     m_current_mode; // ou enum
-//     Mode *  m_mode;
-// }
+enum class Mode : int
+{
+  Off = 0,
+  Pulse
+};
 
 //==================================//
 // Class that handles the LED Strip //
 //==================================//
 class LedStrip
 {
+public:
 
-    //! @jean Tu as bien mis le mot clés public mais je mettrais aussi le mot clés
-    //! private pour les variables. C'est plus clair même si elles sont par défaut
-    //! private.
+  // numberOfLeds: number of LEDs on Adafruit Pixels
+  // dataPin: Yellow wire on Adafruit Pixels
+  // clockPin: Green wire on Adafruit Pixels
+  // refreshTime: refreshTime in milliseconds
+  LedStrip(uint16_t numberOfLeds, uint8_t dataPin, uint8_t clockPin, uint16_t refreshTime);
 
-    //! @jean Par convention on met souvent l'"interface" public d'une classe en
-    //! premier car pour la lecture c'est plus simple de mettre ce qu'on va être
-    //! susceptible d'appeler.
+  void Begin();
 
-    //! @jean Souvent en C++ pour distinguer varialbe membre d'une classe def
-    //! variable tout cours on met m_ devant les variables membres. Très pratique
-    //! et assez classique comme convention.
-    //! ex. m_strip, m_udpateIntervalTime.
+  void startMode(std::vector<std::string> const &input);
 
-    //! @jean Un truc du genre.
-    // class LedStrip
-    // {
-    // public:
-    //
-    //     LedStrip();
-    //
-    //     LedStrip();
-    // private:
-    //
-    //     adafruite m_strip;
-    //     uint16_t m_updateIntervalTime;
-    // }
+  void Update(unsigned long currentMillis);
 
-    // Variables initialized in constructor
-    Adafruit_WS2801 m_strip;
-    uint16_t m_updateIntervalTime;
+private:
+  void TurnOff();
 
-    //! @jean pour activate mode j'utiliserais un enum plutôt.
-    //! en dehors de la classe tu définis la class enum Mode.
-    // enum class Mode
-    // {
-    //     Off,
-    //     Ramp1,
-    //     Ramp2
-    // }
-    // et dans la classe tu déclare un mode.
-    // Mode activatedMode = Mode::Off;
+  void setUniformColor(uint32_t c);
 
-    //! @jean pour la lecture je ferais des classes de data par mode aussi.
+  void ActivatePulse();
 
-    // State variables that are updated after reading Raspberry Pi message
-    int activatedMode;
-    byte color1[3];
-    byte color2[3];
-    int m_totalPlays;
-    int m_numberOfPlay;
+  void Pulse(unsigned long currentMillis);
 
-    // Pulse 2
-    int T1;
-    int T2;
+  void setPulseColors();
 
-    // Variables useful in handling each behaviour
-    unsigned long previousMillis = 0;   // store last time the strip was updated
+  uint32_t Color(byte r, byte g, byte b);
 
-    // Pulse 2
-    int step1;
-    int step2;
-    int n_steps1;
-    int n_steps2;
-    int phase;
-    int step;
-
-    boolean needsUpdate = false; // set to true when the colors change
-
-    // Other variables
-    float R;
-
-    // Constructor - creates a LedStrip
-    // and initializes the member variables and state
-  public:
-
-    //! @jean Oulala t'initialises rien dans ton constructeur.
-    //! en C++ toutes les variables doivent être initialisé parce qu'en gros
-    //! les variables peuvent valoirs n'importent quoi sinon. après ton constructeur
-    //! step1 peut valoir 4 comme 10000 (dépendement du compilateur)
-    //! On utilise souvent une synthaxe initialiser list pour ça. donc
-
-    // LedStrip(uint16_t numberOfLeds, uint8_t dataPin, uint8_t clockPin, uint16_t refreshTime):
-    // strip(),
-    // m_updateIntervalTime(0),
-    // activatedMode(),
-    // duration()
-    // ect...
-    // {
-    //
-    // }
-
-    LedStrip(uint16_t numberOfLeds, uint8_t dataPin, uint8_t clockPin, uint16_t refreshTime)
-    {
-      // dataPin is the Yellow wire on Adafruit Pixels
-      // clockPin is the Green wire on Adafruit Pixels
-      m_strip = Adafruit_WS2801(numberOfLeds, dataPin, clockPin);
-      m_updateIntervalTime = refreshTime;
-
-      m_totalPlays = 0;
-      m_numberOfPlay = 0;
-
-      // Calculate the R variable (only needs to be done once at setup)
-      //    R = (numberOfSteps * log10(2))/(log10(255));
-    }
-
-    void Begin() {
-      m_strip.begin();
-      m_strip.show();
-    }
-
-    void Update(unsigned long currentMillis) {
-      if (activatedMode == 1) {
-        Pulse(currentMillis);
-      }
-
-      if (activatedMode == 2) {
-        Pulse(currentMillis);
-      }
-
-      if (needsUpdate) {
-        m_strip.show();
-        needsUpdate = false;
-      }
-    }
-
-    void TurnOff() {
-      Serial.println("Here in the function TurnOff");
-      activatedMode = 0;
-      m_totalPlays = 0;
-      m_numberOfPlay = 0;
-      setUniformColor(0);
-      needsUpdate = true;
-    }
-
-    void ActivatePulse(int mode, int totalPlays, byte c1[], byte c2[], int d1, int d2) {
-      Serial.println("Here in the function ActivatePulse");
-      activatedMode = mode;
-      m_totalPlays = totalPlays;
-      m_numberOfPlay = 0;
-
-      int i;
-      for (i = 0; i < 3; ++i) {
-        color1[i] = c1[i];
-        color2[i] = c2[i];
-      }
-
-      T1 = d1;
-      T2 = d2;
-
-      // Reset variables
-      n_steps1 = T1 / m_updateIntervalTime; // steps from color 1 to 2
-      n_steps2 = T2 / m_updateIntervalTime; // steps from color 2 to 1
-      step = 0;
-      phase = 1;
-    }
-
-    void Pulse(unsigned long currentMillis) {
-      if (m_numberOfPlay >= m_totalPlays) {
-        Serial.println("<-1>");
-        m_numberOfPlay = 0;
-      }
-
-      if ((currentMillis - previousMillis) >= m_updateIntervalTime) {
-        previousMillis = millis();
-        setPulseColors();
-      }
-    }
-
-    void setPulseColors() {
-      if (phase == 1) {
-        step1++;
-
-        int rDiff = color2[0] - color1[0];
-        int gDiff = color2[1] - color1[1];
-        int bDiff = color2[2] - color1[2];
-
-        float rVariation = (float)rDiff / (float)n_steps1;
-        float gVariation = (float)gDiff / (float)n_steps1;
-        float bVariation = (float)bDiff / (float)n_steps1;
-
-        byte newRed = color1[0] + step1 * rVariation;
-        byte newGreen = color1[1] + step1 * gVariation;
-        byte newBlue = color1[2] + step1 * bVariation;
-
-        //    byte newExpoRed = color1[0] + sign(rDiff) * (pow (2, (step / R)) - 1);
-        //    Serial.println(newExpoRed);
-
-        setUniformColor(Color(newRed, newGreen, newBlue));
-
-        if (step1 >= n_steps1) {
-          phase = 2;
-          step1 = 0;
-        }
-      }
-      if (phase == 2) {
-        step2++;
-
-        int rDiff = color1[0] - color2[0];
-        int gDiff = color1[1] - color2[1];
-        int bDiff = color1[2] - color2[2];
-
-        float rVariation = (float)rDiff / (float)n_steps2;
-        float gVariation = (float)gDiff / (float)n_steps2;
-        float bVariation = (float)bDiff / (float)n_steps2;
-
-        byte newRed = color2[0] + step2 * rVariation;
-        byte newGreen = color2[1] + step2 * gVariation;
-        byte newBlue = color2[2] + step2 * bVariation;
-
-        setUniformColor(Color(newRed, newGreen, newBlue));
-
-        if (step2 >= n_steps2) {
-          phase = 1;
-          step2 = 0;
-          m_numberOfPlay++;
-        }
-      }
-    }
-
-    int sign(int x) {
-      return (x > 0) ? 1 : ((x < 0) ? -1 : 0);
-    }
-
-    // Create a 24 bit color value from R,G,B
-    uint32_t Color(byte r, byte g, byte b) {
-      uint32_t c;
-      c = r;
-      c <<= 8;
-      c |= g;
-      c <<= 8;
-      c |= b;
-      return c;
-    }
-
-    void setUniformColor(uint32_t c) {
-      int i;
-
-      for (i = 0; i < m_strip.numPixels(); i++) {
-        m_strip.setPixelColor(i, c);
-      }
-      needsUpdate = true;
-    }
+private:
+  std::map<std::string, double> m_params;
+  Adafruit_WS2801 m_strip;
+  uint16_t m_updateIntervalTime;
+  Mode m_activatedMode;
+  unsigned long m_previousMillis = 0; // store last time the strip was updated
+  bool m_needsUpdate = false;         // set to true when the colors change
 };
 
+LedStrip::LedStrip(uint16_t numberOfLeds, uint8_t dataPin, uint8_t clockPin, uint16_t refreshTime)
+    : m_params(),
+      m_strip(numberOfLeds, dataPin, clockPin),
+      m_updateIntervalTime(refreshTime),
+      m_activatedMode(Mode::Off),
+      m_previousMillis(0),
+      m_needsUpdate(false)
+{
+}
+
+void LedStrip::Begin()
+{
+  m_strip.begin();
+  m_strip.show();
+}
+
+void LedStrip::Update(unsigned long currentMillis)
+{
+  if (m_activatedMode == Mode::Pulse)
+  {
+    Pulse(currentMillis);
+  }
+
+  if (m_needsUpdate)
+  {
+    m_strip.show();
+    m_needsUpdate = false;
+  }
+}
+
+void LedStrip::TurnOff()
+{
+  Serial.println("Here in the function TurnOff");
+  setUniformColor(0);
+  m_needsUpdate = true;
+}
+
+void LedStrip::startMode(std::vector<std::string> const &input)
+{
+  m_params.clear();
+
+  Mode mode = (Mode) atoi(input[1].c_str());
+
+  switch (mode)
+  {
+  case Mode::Off:
+  {
+    TurnOff();
+    break;
+  }
+  case Mode::Pulse:
+  {
+    Serial.println("Coucou le mode pulse");
+
+    if (input.size() >= 10)
+    {
+      m_params["ncycles"] = atof(input[2].c_str());
+      m_params["color1r"] = atof(input[3].c_str());
+      m_params["color1g"] = atof(input[4].c_str());
+      m_params["color1b"] = atof(input[5].c_str());
+      m_params["color2r"] = atof(input[6].c_str());
+      m_params["color2g"] = atof(input[7].c_str());
+      m_params["color2b"] = atof(input[8].c_str());
+
+      if (input.size() >= 11)
+      {
+        m_params["t1"] = atof(input[9].c_str());
+        m_params["t2"] = atof(input[10].c_str());
+      }
+      else
+      {
+        m_params["t1"] = atof(input[9].c_str()) / 2.;
+        m_params["t2"] = m_params["t1"];
+      }
+
+      ActivatePulse();
+    }
+    else
+    {
+      Serial.println("Invalid parameters for Pulse");
+    }
+    break;
+  }
+  }
+
+  m_activatedMode = mode;
+}
+
+void LedStrip::ActivatePulse()
+{
+  Serial.println("Here in the function ActivatePulse");
+  m_params["count"] = 0;
+  m_params["nsteps1"] = m_params["t1"] / m_updateIntervalTime; // steps from color 1 to 2
+  m_params["nsteps2"] = m_params["t2"] / m_updateIntervalTime; // steps from color 2 to 1
+  m_params["step1"] = 0;
+  m_params["step2"] = 0;
+  m_params["phase"] = 1;
+}
+
+void LedStrip::Pulse(unsigned long currentMillis)
+{
+  if (m_params["count"] >= m_params["ncycles"])
+  {
+    Serial.println("<-1>");
+    m_params["count"] = 0;
+  }
+
+  if ((currentMillis - m_previousMillis) >= m_updateIntervalTime)
+  {
+    m_previousMillis = millis();
+    setPulseColors();
+  }
+}
+
+void LedStrip::setPulseColors()
+{
+  if (m_params["phase"] == 1)
+  {
+    m_params["step1"]++;
+
+    int rDiff = m_params["color2r"] - m_params["color1r"];
+    int gDiff = m_params["color2g"] - m_params["color1g"];
+    int bDiff = m_params["color2b"] - m_params["color1b"];
+
+    float rVariation = (float)rDiff / m_params["nsteps1"];
+    float gVariation = (float)gDiff / m_params["nsteps1"];
+    float bVariation = (float)bDiff / m_params["nsteps1"];
+
+    byte newRed = m_params["color1r"] + m_params["step1"] * rVariation;
+    byte newGreen = m_params["color1g"] + m_params["step1"] * gVariation;
+    byte newBlue = m_params["color1b"] + m_params["step1"] * bVariation;
+
+    setUniformColor(Color(newRed, newGreen, newBlue));
+
+    if (m_params["step1"] >= m_params["nsteps1"])
+    {
+      m_params["phase"] = 2;
+      m_params["step1"] = 0;
+    }
+  }
+  if (m_params["phase"] == 2)
+  {
+    m_params["step2"]++;
+
+    int rDiff = m_params["color1r"] - m_params["color2r"];
+    int gDiff = m_params["color1g"] - m_params["color2g"];
+    int bDiff = m_params["color1b"] - m_params["color2b"];
+
+    float rVariation = (float)rDiff / m_params["nsteps2"];
+    float gVariation = (float)gDiff / m_params["nsteps2"];
+    float bVariation = (float)bDiff / m_params["nsteps2"];
+
+    byte newRed = m_params["color2r"] + m_params["step2"] * rVariation;
+    byte newGreen = m_params["color2g"] + m_params["step2"] * gVariation;
+    byte newBlue = m_params["color2b"] + m_params["step2"] * bVariation;
+
+    setUniformColor(Color(newRed, newGreen, newBlue));
+
+    if (m_params["step2"] >= m_params["nsteps2"])
+    {
+      m_params["phase"] = 1;
+      m_params["step2"] = 0;
+      m_params["count"]++;
+    }
+  }
+}
+
+// Create a 24 bit color value from R,G,B
+uint32_t LedStrip::Color(byte r, byte g, byte b)
+{
+  uint32_t c;
+  c = r;
+  c <<= 8;
+  c |= g;
+  c <<= 8;
+  c |= b;
+  return c;
+}
+
+void LedStrip::setUniformColor(uint32_t c)
+{
+  for (int i = 0; i < m_strip.numPixels(); i++)
+  {
+    m_strip.setPixelColor(i, c);
+  }
+  m_needsUpdate = true;
+}
 
 // SPOT LIGHT FUNCTIONS
-void updateSpot(unsigned long currentMillis) {
-  if (spotIsOn) {
-      analogWrite(RED, 255 - spotLightColor[0]);
-      analogWrite(GREEN, 255 - spotLightColor[1]);
-      analogWrite(BLUE, 255 - spotLightColor[2]); 
-    if ((currentMillis - previousSpotMillis) > spotLightOnTime) {
-        Serial.println("SHOULD TURN OFF SPOT");
+void updateSpot(unsigned long currentMillis)
+{
+  if (spotIsOn)
+  {
+    analogWrite(RED, 255 - spotLightColor[0]);
+    analogWrite(GREEN, 255 - spotLightColor[1]);
+    analogWrite(BLUE, 255 - spotLightColor[2]);
+    if ((currentMillis - previousSpotMillis) > spotLightOnTime)
+    {
+      Serial.println("SHOULD TURN OFF SPOT");
       spotIsOn = false;
       analogWrite(RED, 255);
       analogWrite(GREEN, 255);
-      analogWrite(BLUE, 255); 
+      analogWrite(BLUE, 255);
     }
-  } 
+  }
 }
 
+LedStrip ledstrip(12, 11, 12, 20);
 
-//! @jean Pas util de déclarer les variables numOfLeds, dataPin ect...
-//! Elles sont gardé en mémoire cache après et accessibles après.
-//! LedStrip ledstrip(12, 11, 12, 20) la doc du constructeur suffis à comprendre
-
-//=============
-uint16_t numberOfLeds = 12; // Number of LEDs on Adafruit Pixels
-uint8_t dataPin  = 11;      // Yellow wire on Adafruit Pixels
-uint8_t clockPin = 12;      // Green wire on Adafruit Pixels
-uint16_t refreshTime = 20;  // refreshTime in milliseconds
-
-LedStrip ledstrip(numberOfLeds, dataPin, clockPin, refreshTime);
-//=============
-
-void setup() {
+void setup()
+{
   Serial.begin(57600);
   Serial.println("<Arduino is ready>");
 
@@ -411,7 +331,7 @@ void setup() {
   ledstrip.Begin();
   sensor.Begin();
 
-    // SPOT
+  // SPOT
   pinMode(RED, OUTPUT);
   pinMode(GREEN, OUTPUT);
   pinMode(BLUE, OUTPUT);
@@ -420,16 +340,14 @@ void setup() {
   digitalWrite(GREEN, HIGH);
   digitalWrite(BLUE, HIGH);
   // END SPOT
-
-  // tell the PC we are ready
 }
-
 
 //=============
 unsigned long curMillis;
 
 //=============
-void loop() {
+void loop()
+{
   curMillis = millis();
   getDataFromRpi();
   handleInputData();
@@ -443,35 +361,60 @@ void loop() {
 //=============
 // Receive data from Rpi and save it into inputBuffer
 //=============
-void getDataFromRpi() {
-  if (Serial.available() > 0) {
+void getDataFromRpi()
+{
+  if (Serial.available() > 0)
+  {
     char x = Serial.read();
 
     // the order of these IF clauses is significant
-    if (x == endMarker) {
+    if (x == endMarker)
+    {
       readInProgress = false;
       newDataFromRpi = true;
       inputBuffer[bytesRecvd] = 0;
     }
 
-    if (readInProgress) {
+    if (readInProgress)
+    {
       inputBuffer[bytesRecvd] = x;
-      bytesRecvd ++;
-      if (bytesRecvd == buffSize) {
+      bytesRecvd++;
+      if (bytesRecvd == buffSize)
+      {
         bytesRecvd = buffSize - 1;
       }
     }
 
-    if (x == startMarker) {
+    if (x == startMarker)
+    {
       bytesRecvd = 0;
       readInProgress = true;
     }
   }
 }
 
-// Data = L,M,args
-void handleInputData() {
-  if (newDataFromRpi) {
+void explodeDataIntoArray(std::vector<std::string> &output, char const *const input)
+{
+  output.clear();
+
+  char *input_cp = (char *)malloc(sizeof(char) * strlen(input));
+
+  strcpy(input_cp, input);
+
+  char *p = strtok(input_cp, ",");
+  while (p != 0)
+  {
+    output.push_back(std::string(p));
+    p = strtok(NULL, ",");
+  }
+
+  free(input_cp);
+}
+
+void handleInputData()
+{
+  if (newDataFromRpi)
+  {
     newDataFromRpi = false;
 
     //
@@ -484,36 +427,18 @@ void handleInputData() {
     std::vector<std::string> inputData;
     explodeDataIntoArray(inputData, inputBuffer);
 
-    if (inputData[0] == "L") {
+    if (inputData[0] == "L")
+    {
       Serial.println("Coucou le led strip");
 
-      if (inputData[1] == "0") {
-        Serial.println("Coucou le mode 0");
-
-        ledstrip.TurnOff();
-      } else if (inputData[1] == "1") {
-        Serial.println("Coucou le mode 1");
-
-        int totalPlays = atoi(inputData[2].c_str());
-        byte color1[3] = {atoi(inputData[3].c_str()), atoi(inputData[4].c_str()), atoi(inputData[5].c_str())};
-        byte color2[3] = {atoi(inputData[6].c_str()), atoi(inputData[7].c_str()), atoi(inputData[8].c_str())};
-        int T = atoi(inputData[9].c_str());
-        ledstrip.ActivatePulse(atoi(inputData[1].c_str()), totalPlays, color1, color2, T/2, T/2);
-
-      } else if (inputData[1] == "2") {
-        Serial.println("Coucou le mode 2");
-
-        int totalPlays = atoi(inputData[2].c_str());
-        byte color1[3] = {atoi(inputData[3].c_str()), atoi(inputData[4].c_str()), atoi(inputData[5].c_str())};
-        byte color2[3] = {atoi(inputData[6].c_str()), atoi(inputData[7].c_str()), atoi(inputData[8].c_str())};
-        int T1 = atoi(inputData[9].c_str());
-        int T2 = atoi(inputData[10].c_str());
-        ledstrip.ActivatePulse(atoi(inputData[1].c_str()), totalPlays, color1, color2, T1, T2);
-      }
-    } else if (inputData[0] == "S") {
+      ledstrip.startMode(inputData);
+    }
+    else if (inputData[0] == "S")
+    {
       Serial.println("Coucou le SPOT");
 
-      if (inputData[1] == "1") {
+      if (inputData[1] == "1")
+      {
         Serial.println("Coucou le mode 1 du spot");
 
         spotLightColor[0] = atoi(inputData[2].c_str());
@@ -527,14 +452,3 @@ void handleInputData() {
   }
 }
 
-void explodeDataIntoArray(std::vector<std::string> & output, char const * const input)
-{
-  output.clear();
-
-  char * p = strtok(input, ",");
-  while (p != 0)
-  {
-    output.push_back(std::string(p));
-    p = strtok (NULL, ",");
-  }
-}
